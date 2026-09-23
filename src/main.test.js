@@ -40,7 +40,8 @@ describe("Waypoint local planning simulation", () => {
     expect(view).toContain("Saturday dinner, without the scramble.");
     expect(view).toContain("Finish by");
     expect(view).toContain("no live prices are checked");
-    expect(view).toContain("does not connect to Alexa+");
+    expect(view).toContain("does not connect to external services");
+    expect(view).not.toMatch(/Alexa\+|Amazon|AWS/);
   });
 
   it("changes the sample and resets its editable values", () => {

@@ -644,10 +644,10 @@ export function renderWorkspace(state) {
 
       <section class="boundary-note" aria-label="Prototype boundary">
         <span class="boundary-icon" aria-hidden="true">!</span>
-        <p><strong>Prototype boundary.</strong> This is a local rule-based simulation. It does not connect to Alexa+, Amazon, AWS, stores, calendars, accounts, or customer data. Budget caps are not checked against live prices. It cannot reserve, purchase, send, or complete a real-world action.</p>
+        <p><strong>Prototype boundary.</strong> This is a local rule-based simulation with fictional examples. It does not connect to external services, accounts, or customer data. Budget caps are not checked against live prices. It cannot make bookings, purchases, or send messages.</p>
       </section>
 
-      <footer class="footer"><p>Designed as a local, reviewable alternative-path prototype. “Alexa+” is used only to describe the hackathon context; this project is not affiliated with Amazon.</p><button type="button" class="reset-action" data-action="reset">Reset local demo</button></footer>
+      <footer class="footer"><p>A local, reviewable prototype. It acts only inside this page and uses fictional sample data.</p><button type="button" class="reset-action" data-action="reset">Reset local demo</button></footer>
     </main>
   `;
 }
