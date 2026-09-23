@@ -15,6 +15,8 @@ Manual browser review should cover:
 - visible focus state;
 - a reduced-motion environment;
 - initial static content with JavaScript disabled;
-- selection, build, trace, and reset states.
+- selecting a sample, editing a brief, building/updating a route, opening the decision record, changing stages, and resetting;
+- a changed draft stays distinct from the last-built route until explicitly applied;
+- finish-time boundaries prevent a route from silently crossing into the prior day.
 
 This file records local validation only. It is not proof of a hackathon entry, account registration, video upload, service integration, award, or payment.

@@ -1,6 +1,6 @@
 # Waypoint — local agent-style planning simulation
 
-Waypoint is a small, static Vite prototype for an **Alexa+ alternative-path hackathon concept**. It demonstrates a household planning experience that keeps the goal, constraints, assumptions, sequence, trade-offs, and human checkpoint visible.
+Waypoint is a static Vite prototype for an **Alexa+ alternative-path hackathon concept**. It demonstrates a household planning experience that keeps the goal, constraints, assumptions, sequence, trade-offs, and human checkpoint visible.
 
 It is designed for local review and has a static public preview. The three examples are fictional and use bundled data only:
 
@@ -11,9 +11,13 @@ It is designed for local review and has a static public preview. The three examp
 ## What this prototype does
 
 - renders an accessible, responsive planning workspace;
-- lets a reviewer select a sample brief, inspect each decision stage, assemble a local example plan, and reveal its decision record;
+- lets a reviewer choose a sample household brief and adjust its finish time, optional spending cap, and group size where relevant;
+- schedules the sample route backward from the chosen finish time and keeps the previous route visible until the reviewer applies the edited brief;
+- exposes the assumptions and human checkpoint in a decision record;
 - shows a clear local-only status and a final human checkpoint;
 - works without accounts, credentials, API keys, network calls, customer data, or a model provider.
+
+The route generator is deterministic and local. It is a rule-based simulation, not a live language model or an Alexa+ connection. The spending cap is carried through the plan as a user boundary; the prototype does not estimate costs or check live prices.
 
 ## What it does **not** do
 
@@ -50,9 +54,10 @@ The implementation uses CSS-only press/hover feedback, preserves keyboard focus,
 
 ## Review path
 
-1. Pick one of the sample briefs under **01 / Select a brief**.
-2. Select **Build local plan**. The app labels this honestly as an in-browser example; it never sends a request.
-3. Select a stage to read the rationale, then select **Show decision record**.
-4. Review the **Prototype boundary** and final person checkpoint.
+1. Pick one of the sample briefs under **01 / Start with a brief**.
+2. Select **Build local plan** to establish the initial route.
+3. Edit a field again to see the current brief update while the existing route remains unchanged; choose **Update local plan** to apply the new time.
+4. Select a stage to read the rationale, then select **Show decision record**.
+5. Review the **Prototype boundary** and final person checkpoint.
 
-The copyable English submission draft is in [docs/submission-draft.md](docs/submission-draft.md). Validation notes are in [docs/validation.md](docs/validation.md). The source-control disclosure is in [docs/competition-work-timeline.md](docs/competition-work-timeline.md).
+The copyable English submission draft is in [docs/submission-draft.md](docs/submission-draft.md). A local demo script is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Validation notes are in [docs/validation.md](docs/validation.md). The source-control disclosure is in [docs/competition-work-timeline.md](docs/competition-work-timeline.md).

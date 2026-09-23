@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/styles.css" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta
       name="description"
@@ -29,9 +30,9 @@
 
         <section class="brief-panel" aria-labelledby="brief-title">
           <div>
-            <p class="section-label">01 / SELECT A BRIEF</p>
+          <p class="section-label">01 / START WITH A BRIEF</p>
             <h2 id="brief-title">Saturday dinner, without the scramble.</h2>
-            <p>Set a relaxed dinner for four, keep the grocery trip to one stop, and stay within a $90 budget.</p>
+          <p>Plan a relaxed dinner for four by 6:30 PM, with one grocery stop and a $90 cap. The local example does not check live prices.</p>
           </div>
           <div class="brief-meta" aria-label="Scenario constraints">
             <span>4 people</span><span>6:30 PM</span><span>$90 cap</span><span>1 store</span>
@@ -42,19 +43,23 @@
           <aside class="flow-panel">
             <p class="section-label">02 / READ THE PLAN</p>
             <ol class="stage-list">
-              <li><strong>1</strong><span><b>Fix the non-negotiables</b><small>Time, budget, and one-store limit</small></span></li>
-              <li><strong>2</strong><span><b>Choose the low-friction route</b><small>Pickup, prep, cook, serve</small></span></li>
-              <li><strong>3</strong><span><b>Keep the trade-offs visible</b><small>Why this route is preferred</small></span></li>
-              <li><strong>4</strong><span><b>Hand back a clear next action</b><small>Review before any real-world action</small></span></li>
+              <li><strong>01</strong><span><b>Fix the non-negotiables</b><small>Time, budget, and one-store limit</small></span></li>
+              <li><strong>02</strong><span><b>Choose the low-friction route</b><small>Pickup, prep, cook, serve</small></span></li>
+              <li><strong>03</strong><span><b>Keep the trade-offs visible</b><small>Why this route is preferred</small></span></li>
+              <li><strong>04</strong><span><b>Hand back a clear next action</b><small>Review before any real-world action</small></span></li>
             </ol>
           </aside>
           <section class="plan-panel" aria-labelledby="fallback-plan-title">
             <p class="section-label">CURRENT VIEW / ROUTE</p>
             <h2 id="fallback-plan-title">One shop. One pan. Enough time to sit down.</h2>
             <div class="timeline">
-              <article><time>4:15</time><div><b>Collect the basket</b><p>Use one familiar store to protect the travel constraint.</p></div></article>
-              <article><time>5:15</time><div><b>Start the oven and prep</b><p>Prepare the longer-cooking item first; keep the table task separate.</p></div></article>
-              <article><time>6:15</time><div><b>Finish and plate</b><p>Reserve fifteen minutes for a late item or a conversation.</p></div></article>
+              <article><time>4:15 PM</time><div><b>Collect the basket</b><p>Use one familiar store to protect the travel constraint.</p></div></article>
+              <article><time>5:15 PM</time><div><b>Start the oven and prep</b><p>Prepare the longer-cooking item first; keep the table task separate.</p></div></article>
+              <article><time>6:15 PM</time><div><b>Finish and plate</b><p>Reserve fifteen minutes for a late item or a conversation.</p></div></article>
+            </div>
+            <div class="checkpoint">
+              <span class="checkpoint-number">03</span>
+              <div><p class="section-label">PERSON CHECKPOINT</p><p>Review the assumptions and choose the next action yourself.</p></div>
             </div>
           </section>
         </section>
@@ -65,6 +70,7 @@
         </section>
       </main>
     </div>
+    <noscript><p class="noscript-note">This is a read-only sample because JavaScript is off. The example is local and does not check live prices or contact services.</p></noscript>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

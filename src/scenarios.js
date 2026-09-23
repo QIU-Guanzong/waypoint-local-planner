@@ -5,8 +5,12 @@ export const scenarios = [
     id: "dinner",
     badge: "HOME / SATURDAY",
     title: "Saturday dinner, without the scramble.",
-    goal: "Set a relaxed dinner for four, keep the grocery trip to one stop, and stay within a $90 budget.",
-    constraints: ["4 people", "6:30 PM", "$90 cap", "1 store"],
+    deadline: "18:30",
+    budgetCap: 90,
+    groupLabel: "Diners",
+    groupCount: 4,
+    scheduleOffsets: [135, 75, 15],
+    constraints: ["One grocery stop"],
     outcome: "One shop. One pan. Enough time to sit down.",
     route: [
       { time: "4:15", title: "Collect the basket", detail: "Use one familiar store to protect the travel constraint." },
@@ -50,8 +54,12 @@ export const scenarios = [
     id: "open-house",
     badge: "STUDIO / THURSDAY",
     title: "Open the studio on time.",
-    goal: "Prepare a compact open-house checklist, leave room for a late delivery, and make the space welcoming by 5:30 PM.",
-    constraints: ["5:30 PM open", "2 helpers", "1 late delivery", "90 min setup"],
+    deadline: "17:30",
+    budgetCap: null,
+    groupLabel: "Helpers",
+    groupCount: 2,
+    scheduleOffsets: [105, 60, 20],
+    constraints: ["One late delivery", "90-minute setup"],
     outcome: "The welcome path is ready before the details arrive.",
     route: [
       { time: "3:45", title: "Set the arrival path", detail: "Place signs, clear the entrance, and keep the first-view wall uncluttered." },
@@ -63,7 +71,7 @@ export const scenarios = [
         id: "constraints",
         label: "Fix the non-negotiables",
         short: "Opening time, helpers, and delivery risk",
-        explanation: "The opening time and a clear arrival path matter more than placing every item. The late delivery is treated as optional until it is physically present."
+        explanation: "The opening deadline and a clear arrival path matter more than placing every item. The late delivery is treated as optional until it is physically present."
       },
       {
         id: "route",
@@ -95,8 +103,12 @@ export const scenarios = [
     id: "weekend",
     badge: "HOME / WEEKEND",
     title: "Reset the weekend without overbooking it.",
-    goal: "Fit errands, a shared meal, and two quiet hours into Saturday while leaving a buffer for plans that change.",
-    constraints: ["1 shared car", "2 quiet hours", "3 errands", "change buffer"],
+    deadline: "17:00",
+    budgetCap: null,
+    groupLabel: null,
+    groupCount: null,
+    scheduleOffsets: [420, 240, 120],
+    constraints: ["One shared car", "Two quiet hours", "Change buffer"],
     outcome: "The essentials are placed; the rest stays optional.",
     route: [
       { time: "10:00", title: "Run the linked errands", detail: "Group the three stops by route so the shared car is used once." },
