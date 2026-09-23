@@ -21,6 +21,10 @@ This repository is a simulation only. It has **not** been registered for or subm
 
 “Alexa+” appears only to describe the prospective hackathon context. This project is not affiliated with, endorsed by, or connected to Amazon. Before any registration or submission, the account holder must review the live hackathon rules, eligibility, intellectual-property terms, permitted AI use, privacy requirements, and submission format.
 
+## License
+
+[MIT](LICENSE)
+
 ## Run locally
 
 ```bash
