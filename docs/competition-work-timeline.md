@@ -10,6 +10,7 @@ This page records source-control evidence for the Waypoint prototype. It is a pr
 | `3829d55` | 2026-09-23 | Added the MIT license for public source review. |
 | `4d84efa` | 2026-09-23 | Added the GitHub Pages workflow and base-path configuration for a reviewable static preview. |
 | `7ec97bd` | 2026-09-24 | Added editable planning boundaries, deadline-based route updates, stale-plan safeguards, focused interaction tests, and a local demo script. Codex was used for implementation; the running app remains deterministic and does not use a model. |
+| `c0e408a` | 2026-09-24 | Added a reviewable delivery-delay simulation: the original route remains visible until applied, then the optional delivery leaves the opening path. Added focused regression tests, submission copy, and a captioned local demo video (kept outside the repository and not publicly uploaded). |
 
 ## Disclosure boundary
 
