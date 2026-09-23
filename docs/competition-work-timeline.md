@@ -9,6 +9,7 @@ This page records source-control evidence for the Waypoint prototype. It is a pr
 | `1c1f8d8` | 2026-09-23 | Created the static Waypoint planning simulation, bundled fictional scenarios, interaction tests, and draft submission material. |
 | `3829d55` | 2026-09-23 | Added the MIT license for public source review. |
 | `4d84efa` | 2026-09-23 | Added the GitHub Pages workflow and base-path configuration for a reviewable static preview. |
+| `7ec97bd` | 2026-09-24 | Added editable planning boundaries, deadline-based route updates, stale-plan safeguards, focused interaction tests, and a local demo script. Codex was used for implementation; the running app remains deterministic and does not use a model. |
 
 ## Disclosure boundary
 
