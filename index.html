@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta
+      name="description"
+      content="A local, static simulation of a transparent multi-step household planning experience."
+    />
+    <title>Waypoint — Local agent simulation</title>
+  </head>
+  <body>
+    <div id="app">
+      <main class="workspace" aria-labelledby="page-title">
+        <header class="topbar">
+          <a class="wordmark" href="#overview" aria-label="Waypoint home">
+            <span class="wordmark-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>WAYPOINT</span>
+          </a>
+          <p class="prototype-note">Local simulation <span aria-hidden="true">·</span> no service connected</p>
+        </header>
+
+        <section class="intro" id="overview">
+          <p class="eyebrow">A transparent agent-style workflow</p>
+          <h1 id="page-title">Make the next move<br />easy to trust.</h1>
+          <p class="lede">Waypoint turns a household goal into a visible sequence. Every recommendation names the constraint it protects, the assumption it makes, and the person who remains in control.</p>
+        </section>
+
+        <section class="brief-panel" aria-labelledby="brief-title">
+          <div>
+            <p class="section-label">01 / SELECT A BRIEF</p>
+            <h2 id="brief-title">Saturday dinner, without the scramble.</h2>
+            <p>Set a relaxed dinner for four, keep the grocery trip to one stop, and stay within a $90 budget.</p>
+          </div>
+          <div class="brief-meta" aria-label="Scenario constraints">
+            <span>4 people</span><span>6:30 PM</span><span>$90 cap</span><span>1 store</span>
+          </div>
+        </section>
+
+        <section class="fallback-grid" aria-label="Example plan">
+          <aside class="flow-panel">
+            <p class="section-label">02 / READ THE PLAN</p>
+            <ol class="stage-list">
+              <li><strong>1</strong><span><b>Fix the non-negotiables</b><small>Time, budget, and one-store limit</small></span></li>
+              <li><strong>2</strong><span><b>Choose the low-friction route</b><small>Pickup, prep, cook, serve</small></span></li>
+              <li><strong>3</strong><span><b>Keep the trade-offs visible</b><small>Why this route is preferred</small></span></li>
+              <li><strong>4</strong><span><b>Hand back a clear next action</b><small>Review before any real-world action</small></span></li>
+            </ol>
+          </aside>
+          <section class="plan-panel" aria-labelledby="fallback-plan-title">
+            <p class="section-label">CURRENT VIEW / ROUTE</p>
+            <h2 id="fallback-plan-title">One shop. One pan. Enough time to sit down.</h2>
+            <div class="timeline">
+              <article><time>4:15</time><div><b>Collect the basket</b><p>Use one familiar store to protect the travel constraint.</p></div></article>
+              <article><time>5:15</time><div><b>Start the oven and prep</b><p>Prepare the longer-cooking item first; keep the table task separate.</p></div></article>
+              <article><time>6:15</time><div><b>Finish and plate</b><p>Reserve fifteen minutes for a late item or a conversation.</p></div></article>
+            </div>
+          </section>
+        </section>
+
+        <section class="boundary-note" aria-label="Prototype boundary">
+          <span class="boundary-icon" aria-hidden="true">!</span>
+          <p><strong>Prototype boundary.</strong> This page is a local planning simulation. It does not connect to Alexa+, Amazon, AWS, stores, calendars, accounts, or customer data. It cannot reserve, purchase, send, or complete a real-world action.</p>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
