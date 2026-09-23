@@ -30,4 +30,4 @@ Planning assistants are most useful when people can understand what was protecte
 
 ## Accurate scope statement
 
-This is a local simulation, not a connected Alexa+, Amazon, or AWS implementation. It does not make reservations, purchases, messages, or other real-world actions. It has not been registered, submitted, or accompanied by an uploaded hackathon video. Any external submission must use the final live rules, eligibility criteria, intellectual-property terms, and required disclosures applicable at the time of submission.
+This is a publicly previewable static simulation, not a connected Alexa+, Amazon, or AWS implementation. It does not make reservations, purchases, messages, or other real-world actions. It has not been registered, submitted, or accompanied by an uploaded hackathon video. Any external submission must use the final live rules, eligibility criteria, intellectual-property terms, and required disclosures applicable at the time of submission.
