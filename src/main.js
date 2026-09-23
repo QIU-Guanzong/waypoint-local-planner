@@ -16,6 +16,8 @@ export function createInitialState(scenarioId = DEFAULT_SCENARIO_ID) {
     planBuilt: false,
     planBrief: null,
     draftBrief: scenarioBrief(scenario),
+    disruptionDraft: false,
+    planDisruption: false,
     traceOpen: false,
     notice: "Adjust a sample brief, then build its local plan."
   };
@@ -73,6 +75,12 @@ function formatTime(value) {
   return `${hour12}:${minutePart} ${period}`;
 }
 
+function formatMinutesAsTime(minutes) {
+  const normalized = ((minutes % (24 * 60)) + 24 * 60) % (24 * 60);
+  const value = `${String(Math.floor(normalized / 60)).padStart(2, "0")}:${String(normalized % 60).padStart(2, "0")}`;
+  return formatTime(value);
+}
+
 function formatMoney(amount) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -111,13 +119,35 @@ function getPlanBrief(state, scenario) {
 
 function isDraftDirty(state, scenario) {
   if (!state.planBuilt || !state.planBrief) return false;
-  return !sameBrief(normalizeBrief(state.draftBrief, scenario), state.planBrief);
+  return !sameBrief(normalizeBrief(state.draftBrief, scenario), state.planBrief)
+    || state.disruptionDraft !== state.planDisruption;
 }
 
-function getRoute(scenario, brief) {
+function getDisruptionImpact(scenario, brief) {
+  if (!scenario.disruption) return null;
+  const deadline = parseClock(brief.deadline);
+  if (deadline === null) return null;
+  const plannedArrival = deadline - scenario.scheduleOffsets[scenario.disruption.routeIndex];
+  return {
+    arrivalTime: formatMinutesAsTime(plannedArrival + scenario.disruption.delayMinutes),
+    deadlineTime: formatTime(brief.deadline)
+  };
+}
+
+function getRoute(scenario, brief, disruptionApplied = false) {
   const deadline = parseClock(brief.deadline);
   if (deadline === null) return scenario.route;
-  return scenario.route.map((item, index) => {
+  const impact = disruptionApplied && scenario.disruption ? getDisruptionImpact(scenario, brief) : null;
+  const route = disruptionApplied && scenario.disruption
+    ? scenario.route.map((item, index) => index === scenario.disruption.routeIndex
+      ? {
+        ...item,
+        title: scenario.disruption.replannedStep.title,
+        detail: `The delivery now arrives at ${impact.arrivalTime}, after the ${impact.deadlineTime} opening. Keep it outside the welcome route; decide later whether to bring it in.`
+      }
+      : item)
+    : scenario.route;
+  return route.map((item, index) => {
     const minutes = (deadline - scenario.scheduleOffsets[index] + 24 * 60) % (24 * 60);
     const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
     return { ...item, displayTime: formatTime(time) };
@@ -137,9 +167,28 @@ function statusText(status) {
 
 function statusCopy(state, scenario) {
   if (isDraftDirty(state, scenario)) {
+    const disruptionChanged = state.disruptionDraft !== state.planDisruption;
+    if (disruptionChanged && state.disruptionDraft) {
+      return {
+        title: "Delivery delay — update the plan",
+        detail: "The current route is still shown. Review the delayed-delivery response and apply it to keep the opening time fixed."
+      };
+    }
+    if (disruptionChanged) {
+      return {
+        title: "Delivery response changed — update the plan",
+        detail: "The route still reflects the earlier delivery delay. Apply the update to restore the original sample route."
+      };
+    }
     return {
       title: "Brief changed — update the plan",
       detail: "The route still shows the previous version. Rebuild it to apply the new time, cap, or group size."
+    };
+  }
+  if (!state.planBuilt && state.disruptionDraft) {
+    return {
+      title: "Delay simulated — build the plan",
+      detail: `The ${scenario.disruption.delayMinutes}-minute delay is part of this local example. Build the route to keep the opening time fixed.`
     };
   }
   if (state.planBuilt) {
@@ -154,9 +203,13 @@ function statusCopy(state, scenario) {
   };
 }
 
-function stageExplanation(scenario, stage, brief) {
+function stageExplanation(scenario, stage, brief, disruptionApplied = false) {
   if (scenario.id === "open-house" && stage.id === "handoff") {
-    const handoffTime = getRoute(scenario, brief)[2]?.displayTime ?? "the final step";
+    const handoffTime = getRoute(scenario, brief, disruptionApplied)[2]?.displayTime ?? "the final step";
+    if (disruptionApplied) {
+      const impact = getDisruptionImpact(scenario, brief);
+      return `At ${handoffTime}, confirm the room is ready without the delayed item. It is expected at ${impact.arrivalTime}, after the ${impact.deadlineTime} opening; decide later whether to bring it in.`;
+    }
     return `At ${handoffTime}, decide whether the delivery belongs in the room. This prototype does not contact vendors or change the schedule.`;
   }
   if (stage.id !== "constraints") return stage.explanation;
@@ -172,16 +225,31 @@ function stageExplanation(scenario, stage, brief) {
   return stage.explanation;
 }
 
-function decisionRecord(scenario, brief) {
+function decisionRecord(scenario, brief, disruptionApplied = false) {
   const checkpoint = scenario.id === "open-house"
-    ? `At ${getRoute(scenario, brief)[2]?.displayTime ?? "the final step"}, decide whether to include the late item.`
+    ? disruptionApplied
+      ? `At ${getRoute(scenario, brief, true)[2]?.displayTime ?? "the final step"}, confirm the opening without the late item; decide later whether to include it.`
+      : `At ${getRoute(scenario, brief)[2]?.displayTime ?? "the final step"}, decide whether to include the late item.`
     : scenario.trace[3][1];
   return [
     ["Brief captured", formatGoal(scenario, brief)],
-    ["Working assumption", scenario.trace[1][1]],
-    ["Route selected", `${scenario.trace[2][1]} Scheduled backward from ${formatTime(brief.deadline)}.`],
+    ["Working assumption", disruptionApplied && scenario.disruption ? `The delivery is ${scenario.disruption.delayMinutes} minutes late and expected at ${getDisruptionImpact(scenario, brief).arrivalTime}, after opening.` : scenario.trace[1][1]],
+    ["Route selected", `${disruptionApplied && scenario.disruption ? scenario.disruption.routeRationale : scenario.trace[2][1]} Scheduled backward from ${formatTime(brief.deadline)}.`],
     ["Human checkpoint", checkpoint]
   ];
+}
+
+function renderDisruptionControl(scenario, state) {
+  if (!scenario.disruption) return "";
+  const brief = normalizeBrief(state.draftBrief, scenario);
+  const impact = getDisruptionImpact(scenario, brief);
+  return `
+    <section class="disruption-panel" aria-labelledby="disruption-title">
+      <div><p class="section-label">TEST A CHANGE</p><h3 id="disruption-title">What if the delivery slips?</h3><p>A local event adds ${scenario.disruption.delayMinutes} minutes. The opening time and the two helpers stay fixed.</p></div>
+      <div class="disruption-action"><button type="button" class="secondary-action" data-action="delivery-delay">${state.disruptionDraft ? "Clear simulated delay" : `Simulate a ${scenario.disruption.delayMinutes}-minute delay`}</button><small>Simulation only · no vendor or order is contacted.</small></div>
+      ${state.disruptionDraft ? `<p class="disruption-preview" role="status"><b>Proposed response:</b> the delivery is now expected at ${escapeHtml(impact.arrivalTime)}, after the ${escapeHtml(impact.deadlineTime)} opening. Keep it outside the welcome route; the current route stays unchanged until you ${state.planBuilt ? "update" : "build"} it.</p>` : ""}
+    </section>
+  `;
 }
 
 function renderBriefFields(scenario, brief) {
@@ -205,9 +273,9 @@ export function renderWorkspace(state) {
   const scenario = getScenario(state.scenarioId);
   const brief = getPlanBrief(state, scenario);
   const active = scenario.stages.find((stage) => stage.id === state.activeStage) ?? scenario.stages[0];
-  const route = getRoute(scenario, brief);
+  const route = getRoute(scenario, brief, state.planBuilt && state.planDisruption);
   const status = statusCopy(state, scenario);
-  const trace = decisionRecord(scenario, brief);
+  const trace = decisionRecord(scenario, brief, state.planBuilt && state.planDisruption);
 
   return `
     <main class="workspace" aria-labelledby="page-title">
@@ -245,6 +313,7 @@ export function renderWorkspace(state) {
           </div>
         </fieldset>
         ${renderBriefFields(scenario, state.draftBrief)}
+        ${renderDisruptionControl(scenario, state)}
       </section>
 
       <section class="plan-status" aria-live="polite" aria-atomic="true">
@@ -280,7 +349,7 @@ export function renderWorkspace(state) {
             <p class="simulation-chip">${state.planBuilt ? "Rule-based local example" : "Sample route"}</p>
           </div>
           <h2 id="plan-title" tabindex="-1">${escapeHtml(active.label)}</h2>
-          <p class="explanation">${escapeHtml(stageExplanation(scenario, active, brief))}</p>
+          <p class="explanation">${escapeHtml(stageExplanation(scenario, active, brief, state.planBuilt && state.planDisruption))}</p>
 
           <div class="route-block">
             <div class="route-heading"><p class="section-label">PROPOSED ROUTE</p><span>${escapeHtml(scenario.outcome)}</span></div>
@@ -379,6 +448,7 @@ export function mount(root) {
       ...state,
       planBuilt: true,
       planBrief,
+      planDisruption: state.disruptionDraft,
       activeStage: "constraints",
       notice: "Plan assembled from the current local brief. No request left this page."
     };
@@ -398,6 +468,8 @@ export function mount(root) {
       state = { ...state, activeStage: target };
     } else if (action === "trace") {
       state = { ...state, traceOpen: !state.traceOpen };
+    } else if (action === "delivery-delay") {
+      state = { ...state, disruptionDraft: !state.disruptionDraft };
     } else if (action === "reset") {
       state = createInitialState();
     } else {
@@ -406,6 +478,7 @@ export function mount(root) {
 
     render();
     restoreFocus(action, target);
+    if (action === "delivery-delay") root.querySelector('[data-action="delivery-delay"]')?.focus({ preventScroll: true });
   });
 
   render();

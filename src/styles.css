@@ -74,6 +74,14 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .brief-field input { width: 100%; min-height: 43px; border: 1px solid var(--ink); border-radius: 0; background: rgba(255, 255, 255, 0.42); color: var(--ink); padding: 9px 11px; }
 .brief-field input::placeholder { color: #667176; opacity: 1; }
 .brief-field small { color: var(--ink-soft); font-size: 0.67rem; line-height: 1.35; }
+.disruption-panel { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 24px; row-gap: 12px; margin-top: 20px; border-top: 1px solid var(--ink); padding-top: 15px; }
+.disruption-panel .section-label { margin: 0 0 5px; }
+.disruption-panel h3 { margin: 0; font-size: 0.98rem; letter-spacing: -0.015em; }
+.disruption-panel > div:first-child > p:last-child { margin: 5px 0 0; color: var(--ink-soft); font-size: 0.75rem; line-height: 1.4; }
+.disruption-action { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.secondary-action { min-height: 42px; border: 1px solid var(--ink); border-radius: 0; background: transparent; padding: 9px 12px; cursor: pointer; font-size: 0.76rem; font-weight: 760; }
+.disruption-action small { color: var(--ink-soft); font-size: 0.65rem; text-align: right; }
+.disruption-preview { grid-column: 1 / -1; margin: 0; border-left: 3px solid var(--clay); padding: 9px 12px; background: var(--paper-deep); color: var(--ink); font-size: 0.75rem; line-height: 1.45; }
 
 .plan-status { display: flex; align-items: center; gap: 12px; min-height: 80px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .status-signal { width: 12px; height: 12px; flex: 0 0 auto; border-radius: 50%; background: var(--clay); box-shadow: 0 0 0 4px var(--clay-pale); }
@@ -173,6 +181,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .brief-meta { justify-content: flex-start; padding-top: 14px; }
   .brief-editor-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
   .brief-fields { grid-template-columns: 1fr; gap: 12px; }
+  .disruption-panel { grid-template-columns: 1fr; align-items: start; }
+  .disruption-action { align-items: flex-start; }
+  .disruption-action small { text-align: left; }
   .plan-status { align-items: flex-start; flex-wrap: wrap; }
   .plan-status > div { min-width: calc(100% - 32px); }
   .primary-action { margin-left: 24px; }

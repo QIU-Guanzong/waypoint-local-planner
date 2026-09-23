@@ -13,6 +13,7 @@ It is designed for local review and has a static public preview. The three examp
 - renders an accessible, responsive planning workspace;
 - lets a reviewer choose a sample household brief and adjust its finish time, optional spending cap, and group size where relevant;
 - schedules the sample route backward from the chosen finish time and keeps the previous route visible until the reviewer applies the edited brief;
+- simulates a late studio delivery and replans only the optional step, keeping the opening time fixed until the person applies the change;
 - exposes the assumptions and human checkpoint in a decision record;
 - shows a clear local-only status and a final human checkpoint;
 - works without accounts, credentials, API keys, network calls, customer data, or a model provider.
@@ -54,10 +55,10 @@ The implementation uses CSS-only press/hover feedback, preserves keyboard focus,
 
 ## Review path
 
-1. Pick one of the sample briefs under **01 / Start with a brief**.
-2. Select **Build local plan** to establish the initial route.
-3. Edit a field again to see the current brief update while the existing route remains unchanged; choose **Update local plan** to apply the new time.
-4. Select a stage to read the rationale, then select **Show decision record**.
-5. Review the **Prototype boundary** and final person checkpoint.
+1. Select **Open the studio on time** and build its initial local route.
+2. Select **Simulate a 30-minute delay**. The delivery would arrive after opening, while the current route stays visible.
+3. Select **Update local plan** to keep the opening route ready and move the optional delivery outside the critical path.
+4. Open the stage explanations and decision record. The assumption, changed route, and human checkpoint stay visible.
+5. Review the **Prototype boundary**; no vendor or order is contacted.
 
 The copyable English submission draft is in [docs/submission-draft.md](docs/submission-draft.md). A local demo script is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Validation notes are in [docs/validation.md](docs/validation.md). The source-control disclosure is in [docs/competition-work-timeline.md](docs/competition-work-timeline.md).

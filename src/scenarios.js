@@ -58,7 +58,15 @@ export const scenarios = [
     budgetCap: null,
     groupLabel: "Helpers",
     groupCount: 2,
-    scheduleOffsets: [105, 60, 20],
+    scheduleOffsets: [90, 45, 10],
+    disruption: {
+      routeIndex: 2,
+      delayMinutes: 30,
+      routeRationale: "Prepare the welcome path and room first; keep the delivery outside the critical path.",
+      replannedStep: {
+        title: "Keep the opening path clear"
+      }
+    },
     constraints: ["One late delivery", "90-minute setup"],
     outcome: "The welcome path is ready before the details arrive.",
     route: [

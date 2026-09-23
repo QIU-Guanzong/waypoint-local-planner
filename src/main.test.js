@@ -93,8 +93,48 @@ describe("Waypoint local planning simulation", () => {
     setBriefField(root, "deadline", "18:30");
     submitBrief(root);
     root.querySelector('[data-stage-id="handoff"]').click();
-    expect(root.querySelector(".explanation").textContent).toContain("At 6:10 PM");
-    expect(root.querySelector("#decision-record").textContent).toContain("At 6:10 PM");
+    expect(root.querySelector(".explanation").textContent).toContain("At 6:20 PM");
+    expect(root.querySelector("#decision-record").textContent).toContain("At 6:20 PM");
+  });
+
+  it("keeps the prior route until a simulated delay is applied, then restores it only after review", () => {
+    const root = renderMountedWorkspace();
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    setBriefField(root, "deadline", "18:30");
+    submitBrief(root);
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+
+    root.querySelector('[data-action="delivery-delay"]').click();
+    expect(root.textContent).toContain("Delivery delay — update the plan");
+    expect(root.textContent).toContain("current route stays unchanged");
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+    expect(root.querySelector('[data-brief-field="deadline"]').value).toBe("18:30");
+    submitBrief(root);
+
+    expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
+    expect(root.querySelector(".timeline").textContent).toContain("6:50 PM, after the 6:30 PM opening");
+    expect(root.querySelector("#decision-record").textContent).toContain("30 minutes late");
+    expect(root.querySelector("#decision-record").textContent).toContain("confirm the opening without the late item");
+
+    root.querySelector('[data-action="delivery-delay"]').click();
+    expect(root.textContent).toContain("Delivery response changed — update the plan");
+    expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
+    submitBrief(root);
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+  });
+
+  it("can build the first route around a delay that arrives before any plan exists", () => {
+    const root = renderMountedWorkspace();
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    root.querySelector('[data-action="delivery-delay"]').click();
+
+    expect(root.textContent).toContain("Delay simulated — build the plan");
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+    expect(root.querySelector(".disruption-preview").textContent).toContain("5:50 PM, after the 5:30 PM opening");
+    root.querySelector("#brief-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+    expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
+    expect(root.querySelector(".timeline").textContent).toContain("5:50 PM, after the 5:30 PM opening");
   });
 
   it("keeps stage controls, focusable state, and reset behavior consistent", () => {
