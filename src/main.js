@@ -19,6 +19,11 @@ export function createInitialState(scenarioId = DEFAULT_SCENARIO_ID) {
     disruptionDraft: false,
     planDisruption: false,
     traceOpen: false,
+    conversationDraft: "",
+    conversation: [{
+      role: "waypoint",
+      text: "Ask about this sample, suggest one change, or ask why. I only match a small set of local phrases."
+    }],
     notice: "Adjust a sample brief, then build its local plan."
   };
 }
@@ -87,6 +92,232 @@ function formatMoney(amount) {
     currency: "USD",
     maximumFractionDigits: 0
   }).format(amount);
+}
+
+function parseConversationTime(message) {
+  const match = /\b(?:to|at|by)\s+(\d{1,2})(?::([0-5]\d))?\s*(am|pm)?\b/i.exec(message);
+  if (!match) return null;
+
+  let hours = Number(match[1]);
+  const minutes = Number(match[2] ?? 0);
+  const period = match[3]?.toLowerCase();
+  if (hours > 23 || (period && (hours < 1 || hours > 12))) return { invalid: true };
+  if (!period && hours <= 12) return { ambiguous: true };
+  if (period === "am" && hours === 12) hours = 0;
+  if (period === "pm" && hours !== 12) hours += 12;
+
+  return {
+    value: `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
+  };
+}
+
+function hasUnappliedChange(state, scenario) {
+  return !state.planBuilt
+    || !sameBrief(normalizeBrief(state.draftBrief, scenario), state.planBrief)
+    || state.disruptionDraft !== state.planDisruption;
+}
+
+function conversationReply(state, message) {
+  const scenario = getScenario(state.scenarioId);
+  const text = message.trim();
+  const lower = text.toLowerCase();
+  const asksForTimeChange = /\b(?:move|change|set|keep|shift|finish|opening|deadline|doors)\b/.test(lower);
+  const deniesDelay = /\b(?:not|isn't|isnt|aren't|arent|wasn't|wasnt|no longer)\b.{0,32}\b(?:late|delayed|delay|slip(?:ping)?)\b|\bno\s+(?:(?:delivery|shipping)\s+)?delay(?:s)?\b|\b(?:don't|do not|doesn't|does not|didn't|did not|can't|cannot|won't|will not)\b.{0,32}\b(?:late|delayed|delay|slip(?:ping)?)\b|\bwithout\b.{0,32}\b(?:late|delayed|delay|slip(?:ping)?)\b/.test(lower);
+  const asksForDelay = !deniesDelay && /\b(?:late|delay|slip|slips|arrive after)\b/.test(lower);
+  const parsedTime = asksForTimeChange ? parseConversationTime(text) : null;
+
+  if (parsedTime?.ambiguous) {
+    return { state, reply: "Please include AM or PM, such as 5:30 PM, so I don't guess the time." };
+  }
+  if (parsedTime?.invalid) {
+    return { state, reply: "That time is outside the 24-hour clock. No plan detail was changed." };
+  }
+  if (parsedTime?.value) {
+    const deadline = parseClock(parsedTime.value);
+    const earliest = scenario.scheduleOffsets[0];
+    if (deadline === null || deadline < earliest) {
+      return {
+        state,
+        reply: `That leaves too little time for this sample. The earliest valid finish time is ${formatTime(minimumDeadline(scenario))}; no change was made.`
+      };
+    }
+    const nextState = {
+      ...state,
+      draftBrief: { ...state.draftBrief, deadline: parsedTime.value },
+      disruptionDraft: state.disruptionDraft || Boolean(asksForDelay && scenario.disruption)
+    };
+    if (asksForDelay && scenario.disruption) {
+      const impact = getDisruptionImpact(scenario, normalizeBrief(nextState.draftBrief, scenario));
+      return {
+        state: nextState,
+        reply: state.planBuilt
+          ? `I staged the ${scenario.disruption.delayMinutes}-minute delay and kept the ${impact.deadlineTime} opening fixed. Delivery is projected at ${impact.arrivalTime}; the current route stays unchanged until you apply it.`
+          : `I staged the ${scenario.disruption.delayMinutes}-minute delay and kept the ${impact.deadlineTime} opening fixed. Delivery is projected at ${impact.arrivalTime}; build the local plan to see the proposed route.`
+      };
+    }
+    return {
+      state: nextState,
+      reply: state.planBuilt
+        ? `${deniesDelay ? "No delivery delay was staged. " : ""}The route will finish by ${formatTime(parsedTime.value)} if you apply it. The currently built route stays as it is until then.`
+        : `${deniesDelay ? "No delivery delay was staged. " : ""}The first local route will finish by ${formatTime(parsedTime.value)} when you build it. No route has been built yet.`
+    };
+  }
+
+  if (/\b(?:apply|go ahead|update|rebuild|build|use that)\b/.test(lower)) {
+    const brief = normalizeBrief(state.draftBrief, scenario);
+    const deadline = parseClock(brief.deadline);
+    if (deadline === null || deadline < scenario.scheduleOffsets[0] || (scenario.groupLabel && brief.groupCount === null)) {
+      return { state, reply: `I can't build this route with those boundaries. The earliest valid finish time is ${formatTime(minimumDeadline(scenario))}.` };
+    }
+    if (!hasUnappliedChange(state, scenario)) {
+      return { state, reply: "The current route already reflects this plan. No outside action was taken." };
+    }
+    const wasBuilt = state.planBuilt;
+    return {
+      state: {
+        ...state,
+        planBuilt: true,
+        planBrief: brief,
+        planDisruption: state.disruptionDraft,
+        activeStage: "constraints",
+        notice: "Plan assembled from the current local conversation. No request left this page."
+      },
+      reply: `The local route is ${wasBuilt ? "updated" : "built"} for ${formatTime(brief.deadline)}. Review the route below; no outside action was taken.`
+    };
+  }
+
+  if (/\b(?:clear|remove|cancel)\b/.test(lower) && /\bdelay\b/.test(lower)) {
+    if (!scenario.disruption) {
+      return { state, reply: "This sample has no delivery-delay example, so nothing changed." };
+    }
+    const nextState = { ...state, disruptionDraft: false };
+    return {
+      state: nextState,
+      reply: state.planDisruption
+        ? "The proposed version removes the delay. The current route remains in place until you apply the update."
+        : state.planBuilt
+          ? "The staged delay is cleared. The current route has not changed."
+          : "The staged delay is cleared. No route has been built or changed."
+    };
+  }
+
+  if (/\b(?:undo|discard)\b/.test(lower)) {
+    const nextState = {
+      ...state,
+      draftBrief: state.planBuilt ? { ...state.planBrief } : scenarioBrief(scenario),
+      disruptionDraft: state.planBuilt ? state.planDisruption : false
+    };
+    return {
+      state: nextState,
+      reply: state.planBuilt
+        ? "Unapplied changes are cleared. The last built route remains unchanged."
+        : "Unapplied changes are cleared. The original sample boundaries are restored."
+    };
+  }
+
+  if (asksForDelay) {
+    if (!scenario.disruption) {
+      return { state, reply: "This sample has no delivery-delay event. Choose the studio example to try that change." };
+    }
+    const nextState = { ...state, disruptionDraft: true };
+    const impact = getDisruptionImpact(scenario, normalizeBrief(state.draftBrief, scenario));
+    return {
+      state: nextState,
+      reply: state.planBuilt
+        ? `I staged a ${scenario.disruption.delayMinutes}-minute delay. The delivery is projected at ${impact.arrivalTime}, after the ${impact.deadlineTime} opening. The current route remains unchanged until you apply it.`
+        : `I staged a ${scenario.disruption.delayMinutes}-minute delay. The delivery is projected at ${impact.arrivalTime}, after the ${impact.deadlineTime} opening. Build the local plan to see the proposed route.`
+    };
+  }
+
+  if (deniesDelay) {
+    return {
+      state,
+      reply: "No delivery delay was staged. If you meant to remove an earlier local delay, say “Clear the delay”; the built route will still wait for you to apply that update."
+    };
+  }
+
+  if (/\bwhy\b/.test(lower)) {
+    const reason = state.disruptionDraft && scenario.disruption
+      ? scenario.disruption.routeRationale
+      : scenario.trace[2][1];
+    return { state, reply: `${reason} This is a local explanation based on the selected sample.` };
+  }
+
+  if (/\bwhat\b/.test(lower) || /\b(?:stay on time|remain fixed|what changed)\b/.test(lower)) {
+    const brief = normalizeBrief(state.draftBrief, scenario);
+    if (scenario.disruption && state.disruptionDraft) {
+      const impact = getDisruptionImpact(scenario, brief);
+      return {
+        state,
+        reply: state.planBuilt
+          ? `The ${formatTime(brief.deadline)} opening stays fixed. The delivery is projected at ${impact.arrivalTime}, after opening; the current route stays in place until you apply the revised route.`
+          : `The ${formatTime(brief.deadline)} opening stays fixed. The delivery is projected at ${impact.arrivalTime}, after opening. Build the local plan to see the proposed route.`
+      };
+    }
+    if (hasUnappliedChange(state, scenario)) {
+      return {
+        state,
+        reply: state.planBuilt
+          ? `The proposed route will finish by ${formatTime(brief.deadline)}. Your current route remains unchanged until you apply it.`
+          : `The first route will finish by ${formatTime(brief.deadline)} when built. No route has been applied yet.`
+      };
+    }
+    return {
+      state,
+      reply: `The current sample keeps its ${formatTime(brief.deadline)} finish time and stated constraints. No outside service is contacted.`
+    };
+  }
+
+  if (asksForTimeChange) {
+    return { state, reply: "Tell me the finish time or opening time with AM or PM, such as 6:00 PM." };
+  }
+
+  return {
+    state,
+    reply: "I can adjust a finish time, stage a delivery delay where available, explain this route, or apply a local plan. Try one of the suggested phrases."
+  };
+}
+
+function appendConversationTurn(state, message) {
+  const result = conversationReply(state, message);
+  const conversation = [
+    ...state.conversation,
+    { role: "you", text: message.trim() },
+    { role: "waypoint", text: result.reply }
+  ].slice(-13);
+  return { ...result.state, conversation, conversationDraft: "" };
+}
+
+function conversationPrompts(scenario, state) {
+  if (scenario.disruption) {
+    if (state.planBuilt && hasUnappliedChange(state, scenario)) {
+      return ["What stays on time?", "Apply the revised route", "Undo change"];
+    }
+    if (state.planBuilt && state.planDisruption) {
+      return ["What stays on time?", "Why this route?", "Clear the delay"];
+    }
+    if (!state.planBuilt && state.disruptionDraft) {
+      return ["What stays on time?", "Apply the revised route", "Undo change"];
+    }
+    if (!state.planBuilt) {
+      return [`The delivery is ${scenario.disruption.delayMinutes} minutes late.`, "What stays on time?", "Build the local plan"];
+    }
+    return [
+      `The delivery is ${scenario.disruption.delayMinutes} minutes late.`,
+      "What stays on time?",
+      "Why this route?"
+    ];
+  }
+  if (state.planBuilt && hasUnappliedChange(state, scenario)) {
+    return ["What changes?", "Apply the proposed plan", "Undo change"];
+  }
+  const deadline = parseClock(scenario.deadline);
+  const suggestedTime = formatMinutesAsTime(deadline + 30);
+  return [
+    `Move the finish time to ${suggestedTime}.`,
+    "Why this route?",
+    state.planBuilt ? "What stays on time?" : "Build the local plan"
+  ];
 }
 
 function formatGoal(scenario, brief) {
@@ -269,6 +500,38 @@ function renderBriefFields(scenario, brief) {
   `;
 }
 
+function renderConversation(state, scenario) {
+  const prompts = conversationPrompts(scenario, state);
+  return `
+    <section class="conversation-panel" aria-labelledby="conversation-title">
+      <div class="conversation-heading">
+        <div><p class="section-label">LOCAL CONVERSATION</p><h3 id="conversation-title">Ask about this plan</h3></div>
+        <p class="conversation-chip">Fixed phrase examples · no model</p>
+      </div>
+      <ol class="conversation-log" aria-label="Waypoint conversation transcript">
+        ${state.conversation.map((turn) => `
+          <li class="conversation-turn conversation-turn--${turn.role === "you" ? "you" : "waypoint"}">
+            <span class="conversation-role">${turn.role === "you" ? "You" : "Waypoint"}</span>
+            <p>${escapeHtml(turn.text)}</p>
+          </li>
+        `).join("")}
+      </ol>
+      <div class="conversation-suggestions" aria-label="Suggested local phrases">
+        <span class="suggestions-label">Try</span>
+        ${prompts.map((prompt) => `<button type="button" class="conversation-prompt" data-action="conversation-prompt" data-prompt="${escapeHtml(prompt)}">${escapeHtml(prompt)}</button>`).join("")}
+      </div>
+      <form id="conversation-form" class="conversation-form" aria-label="Ask Waypoint about the plan">
+        <label for="conversation-input">Your turn</label>
+        <div class="conversation-composer">
+          <input id="conversation-input" name="message" type="text" maxlength="240" autocomplete="off" required value="${escapeHtml(state.conversationDraft)}" placeholder="e.g. The delivery is 30 minutes late." aria-describedby="conversation-help">
+          <button type="submit" class="secondary-action conversation-send">Send</button>
+        </div>
+        <small id="conversation-help">This local phrase matcher keeps the selected sample in context. It makes no network request.</small>
+      </form>
+    </section>
+  `;
+}
+
 export function renderWorkspace(state) {
   const scenario = getScenario(state.scenarioId);
   const brief = getPlanBrief(state, scenario);
@@ -351,6 +614,8 @@ export function renderWorkspace(state) {
           <h2 id="plan-title" tabindex="-1">${escapeHtml(active.label)}</h2>
           <p class="explanation">${escapeHtml(stageExplanation(scenario, active, brief, state.planBuilt && state.planDisruption))}</p>
 
+          ${renderConversation(state, scenario)}
+
           <div class="route-block">
             <div class="route-heading"><p class="section-label">PROPOSED ROUTE</p><span>${escapeHtml(scenario.outcome)}</span></div>
             <ol class="timeline">
@@ -421,14 +686,25 @@ export function mount(root) {
     root.innerHTML = renderWorkspace(state);
   }
 
+  function announceConversationReply() {
+    const announcer = root.parentElement?.querySelector("#live-announcer");
+    const latestTurn = state.conversation.at(-1);
+    if (announcer && latestTurn?.role === "waypoint") announcer.textContent = latestTurn.text;
+  }
+
   function restoreFocus(action, target) {
     if (action === "scenario") root.querySelector(`[data-action="scenario"][data-scenario-id="${state.scenarioId}"]`)?.focus({ preventScroll: true });
     else if (action === "stage") root.querySelector(`[data-action="stage"][data-stage-id="${target}"]`)?.focus({ preventScroll: true });
     else if (action === "trace") root.querySelector(state.traceOpen ? ".close-trace" : ".text-action")?.focus({ preventScroll: true });
     else if (action === "reset") root.querySelector(`[data-action="scenario"][data-scenario-id="${state.scenarioId}"]`)?.focus({ preventScroll: true });
+    else if (action === "conversation-prompt") root.querySelector("#conversation-input")?.focus({ preventScroll: true });
   }
 
   root.addEventListener("input", (event) => {
+    if (event.target.id === "conversation-input") {
+      state = { ...state, conversationDraft: event.target.value };
+      return;
+    }
     const field = event.target.dataset.briefField;
     if (!field) return;
     state = { ...state, draftBrief: { ...state.draftBrief, [field]: event.target.value } };
@@ -437,6 +713,17 @@ export function mount(root) {
   });
 
   root.addEventListener("submit", (event) => {
+    if (event.target.id === "conversation-form") {
+      event.preventDefault();
+      if (!event.target.reportValidity()) return;
+      const message = state.conversationDraft.trim();
+      if (!message) return;
+      state = appendConversationTurn(state, message);
+      render();
+      announceConversationReply();
+      root.querySelector("#conversation-input")?.focus({ preventScroll: true });
+      return;
+    }
     if (event.target.id !== "brief-form") return;
     event.preventDefault();
     if (!event.target.reportValidity()) return;
@@ -470,6 +757,8 @@ export function mount(root) {
       state = { ...state, traceOpen: !state.traceOpen };
     } else if (action === "delivery-delay") {
       state = { ...state, disruptionDraft: !state.disruptionDraft };
+    } else if (action === "conversation-prompt") {
+      state = appendConversationTurn(state, control.dataset.prompt ?? "");
     } else if (action === "reset") {
       state = createInitialState();
     } else {
@@ -477,6 +766,7 @@ export function mount(root) {
     }
 
     render();
+    if (action === "conversation-prompt") announceConversationReply();
     restoreFocus(action, target);
     if (action === "delivery-delay") root.querySelector('[data-action="delivery-delay"]')?.focus({ preventScroll: true });
   });

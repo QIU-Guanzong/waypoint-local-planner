@@ -1,16 +1,15 @@
 # Waypoint local demo script
 
-This script matches the 35.3-second captioned browser recording saved in the workspace's sibling `outputs` directory, outside this repository.
+This script matches the 35.3-second English-captioned browser recording `outputs/waypoint-alexa-local-demo-20260924-conversation.mp4`, saved beside this repository. The recording is a review artifact and has not been uploaded to a public video service.
 
 | Approx. time | On-screen action and caption |
 | --- | --- |
-| 0–4 sec | Introduce Waypoint: keep the opening time fixed when a household plan changes. |
-| 4–7 sec | Select the studio brief and set up the 5:30 PM opening. |
-| 7–11 sec | Build the original route with two helpers and a late delivery step. |
-| 11–14 sec | Introduce a simulated 30-minute delivery delay. |
-| 14–19 sec | Show the 5:50 PM arrival estimate and the unchanged route draft. |
-| 19–24 sec | Apply the change; keep the opening path ready and defer the delivery. |
-| 24–29 sec | Open the handoff stage and decision record to show the changed assumption and human checkpoint. |
-| 29–35.3 sec | State the local-only boundary: no Alexa+ connection, vendor contact, or real order. |
+| 0–4 sec | Caption: the 5:30 PM studio opening is the fixed constraint. |
+| 4–8 sec | Select the studio sample and build its original route. |
+| 8–13 sec | Stage “The delivery is 30 minutes late.” The current route stays in place. |
+| 13–18 sec | Ask “What stays on time?” Show the 5:30 PM opening and 5:50 PM projected delivery in context. |
+| 18–23 sec | Apply the revised route after review; the delivery moves outside the opening path. |
+| 23–30 sec | Open the decision record to show the assumption, route choice, and person checkpoint. |
+| 30–35.3 sec | State the boundary: deterministic local example; no Alexa+ connection, model call, booking, or purchase. |
 
 The recording shows the local prototype in a browser. It does not show Alexa+, an Amazon account, a model call, live prices, bookings, purchases, or other external services.

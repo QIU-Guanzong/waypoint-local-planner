@@ -14,15 +14,16 @@ It is designed for local review and has a static public preview. The three examp
 - lets a reviewer choose a sample household brief and adjust its finish time, optional spending cap, and group size where relevant;
 - schedules the sample route backward from the chosen finish time and keeps the previous route visible until the reviewer applies the edited brief;
 - simulates a late studio delivery and replans only the optional step, keeping the opening time fixed until the person applies the change;
+- carries a short text conversation across a proposed delay, an explanation of what stays fixed, and a direct local apply action;
 - exposes the assumptions and human checkpoint in a decision record;
 - shows a clear local-only status and a final human checkpoint;
 - works without accounts, credentials, API keys, network calls, customer data, or a model provider.
 
-The route generator is deterministic and local. It is a rule-based simulation, not a live language model or an Alexa+ connection. The spending cap is carried through the plan as a user boundary; the prototype does not estimate costs or check live prices.
+The route generator and phrase matcher are deterministic and local. The conversation handles a small, visible set of example intents; it is not a general language model or an Alexa+ connection. The spending cap is carried through the plan as a user boundary; the prototype does not estimate costs or check live prices.
 
 ## What it does **not** do
 
-This repository is a simulation only. It has **not** been registered for or submitted to an Amazon Developer Hackathon. No video has been uploaded. It has no Alexa+, Amazon, AWS, Nightly, store, calendar, maps, reservation, checkout, or real customer-data integration. It cannot make a purchase, contact a service, send a message, or complete any real-world action.
+This repository is a simulation only. It has **not** been registered for or submitted to an Amazon Developer Hackathon. No video has been uploaded. It has no Alexa+, Amazon, AWS, store, calendar, maps, reservation, checkout, or real customer-data integration. It cannot make a purchase, contact a service, send a message, or complete any real-world action.
 
 “Alexa+” appears only to describe the prospective hackathon context. This project is not affiliated with, endorsed by, or connected to Amazon. Before any registration or submission, the account holder must review the live hackathon rules, eligibility, intellectual-property terms, permitted AI use, privacy requirements, and submission format.
 
@@ -56,9 +57,10 @@ The implementation uses CSS-only press/hover feedback, preserves keyboard focus,
 ## Review path
 
 1. Select **Open the studio on time** and build its initial local route.
-2. Select **Simulate a 30-minute delay**. The delivery would arrive after opening, while the current route stays visible.
-3. Select **Update local plan** to keep the opening route ready and move the optional delivery outside the critical path.
-4. Open the stage explanations and decision record. The assumption, changed route, and human checkpoint stay visible.
-5. Review the **Prototype boundary**; no vendor or order is contacted.
+2. Ask, **“The delivery is 30 minutes late.”** Waypoint stages a proposal and keeps the current route visible.
+3. Ask, **“What stays on time?”** The reply carries the studio opening deadline into the next turn and explains the projected arrival.
+4. Select **Apply the revised route**. The optional delivery moves outside the opening path; no outside action is taken.
+5. Open the stage explanations and decision record. The assumption, changed route, and person checkpoint stay visible.
+6. Review the **Prototype boundary**; no vendor or order is contacted.
 
 The copyable English submission draft is in [docs/submission-draft.md](docs/submission-draft.md). A local demo script is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Validation notes are in [docs/validation.md](docs/validation.md). The source-control disclosure is in [docs/competition-work-timeline.md](docs/competition-work-timeline.md).

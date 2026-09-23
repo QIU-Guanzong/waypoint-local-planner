@@ -8,7 +8,7 @@
 
 Waypoint is a local, static simulation of a household planning assistant. It turns a dinner, studio setup, or weekend-errand brief into a visible route around a fixed finish time, optional spending cap, and group size. In the studio scenario, a 30-minute delivery delay would put the delivery after opening; the person can inspect the proposed response before applying it, and the opening route stays ready while the optional delivery moves outside the critical path.
 
-The local rule-based simulation schedules sample steps backward from the chosen finish time and records the brief, assumptions, route, and human checkpoint. It uses fictional examples and makes no network, account, API-key, customer-data, or external model-service calls. A spending cap remains a planning boundary; the prototype does not estimate costs or check live prices.
+The local rule-based simulation schedules sample steps backward from the chosen finish time and records the brief, assumptions, route, and person checkpoint. In the studio example, a short, bounded text conversation can stage a delayed delivery, answer what stays on time, and apply a revised route only when the person asks. It uses fictional examples and makes no network, account, API-key, customer-data, or external model-service calls. A spending cap remains a planning boundary; the prototype does not estimate costs or check live prices.
 
 ## Why it is useful
 
@@ -20,15 +20,17 @@ Planning assistants are most useful when people can see what changed and what st
 - Vanilla JavaScript and CSS; no framework, server, analytics, or external data source
 - Responsive layout, keyboard-operable controls, visible focus states, and reduced-motion support
 - One deterministic disruption scenario: a simulated late delivery is deferred so the studio opening remains on time
+- A bounded phrase matcher carries the selected brief across a few text turns; unsupported requests get a clear limitation rather than an invented answer
 - Deterministic local rules and bundled fictional examples; no account or personal-data requirement
 
 ## Demo path
 
 1. Choose **Open the studio on time** and select **Build local plan**.
 2. Review the arrival path, helper split, and planned delivery step.
-3. Select **Simulate a 30-minute delay**. Confirm the previous route stays visible and the proposed arrival is after opening.
-4. Select **Update local plan**. The revised route keeps the room ready and leaves the optional delivery outside the opening path.
-5. Open the handoff stage and decision record, then review the person checkpoint and local-only boundary.
+3. Ask, **“The delivery is 30 minutes late.”** Confirm Waypoint stages a proposal while the previous route stays visible.
+4. Ask, **“What stays on time?”** Confirm the answer keeps the 5:30 PM opening in context and estimates the 5:50 PM delivery.
+5. Select **Apply the revised route**. The new local route keeps the room ready and leaves the optional delivery outside the opening path.
+6. Open the handoff stage and decision record, then review the person checkpoint and local-only boundary.
 
 ## Demo video
 
@@ -56,7 +58,7 @@ OpenAI Codex was used as a coding agent to implement and test this prototype. Th
 - **Contribution:** https://github.com/atuinsh/atuin/pull/4200
 - **Repository:** https://github.com/atuinsh/atuin
 - **GitHub username:** QIU-Guanzong
-- **Work:** Preserve a user's custom matcher and handler settings when Atuin updates existing AI-agent hooks. The change groups hook registration behavior in a small type and has focused tests. The pull request is open, has no maintainer review decision yet, and is not merged; do not describe it as accepted.
+- **Work:** Preserve a user's custom matcher and handler settings when Atuin updates existing AI-agent hooks. The change groups hook registration behavior in a small type and has focused tests. The pull request was created during the hackathon window and is open; no maintainer review decision or merge is recorded, so do not describe it as accepted.
 
 ## Friction log (draft)
 

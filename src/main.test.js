@@ -7,6 +7,9 @@ afterEach(() => {
 });
 
 function renderMountedWorkspace() {
+  const announcer = document.createElement("div");
+  announcer.id = "live-announcer";
+  document.body.append(announcer);
   const root = document.createElement("div");
   document.body.append(root);
   mount(root);
@@ -22,6 +25,13 @@ function setBriefField(root, name, value) {
   field.value = value;
   field.dispatchEvent(new Event("input", { bubbles: true }));
   return field;
+}
+
+function sendConversation(root, message) {
+  const input = root.querySelector("#conversation-input");
+  input.value = message;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  root.querySelector("#conversation-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 }
 
 describe("Waypoint local planning simulation", () => {
@@ -135,6 +145,95 @@ describe("Waypoint local planning simulation", () => {
 
     expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
     expect(root.querySelector(".timeline").textContent).toContain("5:50 PM, after the 5:30 PM opening");
+  });
+
+  it("carries a delivery-delay conversation through explanation and explicit plan application", () => {
+    const root = renderMountedWorkspace();
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    submitBrief(root);
+    sendConversation(root, "The delivery is 30 minutes late.");
+
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+    expect(root.querySelector(".conversation-log").textContent).toContain("5:50 PM");
+    expect(document.querySelector("#live-announcer").textContent).toContain("5:50 PM");
+    expect(root.querySelector("#conversation-input")).toBe(document.activeElement);
+
+    root.querySelector('[data-action="conversation-prompt"][data-prompt="What stays on time?"]').click();
+    expect(root.querySelector(".conversation-log").textContent).toContain("The 5:30 PM opening stays fixed");
+    expect(document.querySelector("#live-announcer").textContent).toContain("opening stays fixed");
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+
+    root.querySelector('[data-action="conversation-prompt"][data-prompt="Apply the revised route"]').click();
+    expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
+    expect(root.querySelector(".timeline").textContent).toContain("5:50 PM, after the 5:30 PM opening");
+    expect(root.querySelector(".conversation-log").textContent).toContain("The local route is updated");
+    root.querySelector('[data-action="conversation-prompt"][data-prompt="Clear the delay"]').click();
+    expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
+    expect(root.querySelector(".conversation-log").textContent).toContain("The current route remains in place until you apply");
+    root.querySelector('[data-action="conversation-prompt"][data-prompt="Apply the revised route"]').click();
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+  });
+
+  it("keeps an edited finish time as a draft until the person applies it", () => {
+    const root = renderMountedWorkspace();
+    submitBrief(root);
+    sendConversation(root, "Move dinner to 7:00 PM.");
+
+    expect(root.textContent).toContain("Brief changed — update the plan");
+    expect(root.querySelector(".timeline").textContent).toContain("4:15 PM");
+    expect(root.querySelector(".conversation-log").textContent).toContain("The route will finish by 7:00 PM");
+
+    sendConversation(root, "Apply the proposed plan.");
+    expect(root.querySelector(".timeline").textContent).toContain("4:45 PM");
+    expect(root.querySelector(".timeline").textContent).toContain("6:45 PM");
+    expect(root.querySelector(".timeline").textContent).not.toContain("4:15 PM");
+  });
+
+  it("keeps a time constraint when a delivery change and opening time arrive in one turn", () => {
+    const root = renderMountedWorkspace();
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    submitBrief(root);
+    sendConversation(root, "The delivery is late. Keep the opening at 5:30 PM.");
+
+    expect(root.querySelector(".conversation-log").textContent).toContain("kept the 5:30 PM opening fixed");
+    expect(root.querySelector(".conversation-log").textContent).toContain("projected at 5:50 PM");
+    expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+    root.querySelector('[data-action="conversation-prompt"][data-prompt="Apply the revised route"]').click();
+    expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
+  });
+
+  it("does not stage a delay when the person explicitly says the delivery is not late", () => {
+    const root = renderMountedWorkspace();
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    submitBrief(root);
+    sendConversation(root, "The delivery is not late.");
+
+    expect(root.querySelector(".disruption-preview")).toBeNull();
+    expect(root.querySelector(".conversation-log").textContent).toContain("No delivery delay was staged.");
+
+    sendConversation(root, "Don't stage another delivery delay.");
+    expect(root.querySelector(".disruption-preview")).toBeNull();
+    expect(root.querySelector(".conversation-log").textContent).toContain("No delivery delay was staged.");
+  });
+
+  it("rejects a finish time that would move the route into the previous day", () => {
+    const root = renderMountedWorkspace();
+    sendConversation(root, "Move dinner to 1:00 AM.");
+
+    expect(root.querySelector('[data-brief-field="deadline"]').value).toBe("18:30");
+    expect(root.querySelector(".conversation-log").textContent).toContain("earliest valid finish time is 2:15 AM");
+  });
+
+  it("treats conversation text as text and resets its context when the sample changes", () => {
+    const root = renderMountedWorkspace();
+    sendConversation(root, "<img src=x onerror=alert(1)>");
+    expect(root.querySelector(".conversation-log img")).toBeNull();
+    expect(root.querySelector(".conversation-log").textContent).toContain("<img src=x onerror=alert(1)>");
+
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    expect(root.querySelector(".conversation-log").textContent).not.toContain("onerror");
+    expect(root.querySelector("#conversation-title").textContent).toContain("Ask about this plan");
+    expect(root.querySelector(".conversation-log").textContent).toContain("Ask about this sample");
   });
 
   it("keeps stage controls, focusable state, and reset behavior consistent", () => {
