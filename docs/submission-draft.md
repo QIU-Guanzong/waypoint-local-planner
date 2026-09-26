@@ -35,7 +35,7 @@ Planning assistants are most useful when people can see what changed and what st
 
 ## Demo video
 
-The updated 23.56-second local Chrome recording is `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`. It shows changing the deadline, applying the revised dinner plan, reviewing its decision record, and restoring the applied plan after reload while the conversation remains unsaved. It has not been uploaded to Devpost or another public service. Before entry, make it publicly available on YouTube or Vimeo and include that video URL. The sequence is documented in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
+The updated 23.56-second local Chrome recording is at `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`, outside this repository. It shows changing the deadline, applying the revised dinner plan, reviewing its decision record, and restoring the applied plan after reload while the conversation remains unsaved. The file is local only and is not included in this repository or uploaded to Devpost or another public service. Before entry, make it publicly available on YouTube or Vimeo and include that video URL. The sequence is documented in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
 
 ## Development disclosure
 
