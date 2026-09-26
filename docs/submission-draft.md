@@ -8,7 +8,7 @@
 
 Waypoint is a local, static simulation of a household planning assistant. It turns a dinner, studio setup, or weekend-errand brief into a visible route around a fixed finish time, optional spending cap, and group size. In the studio scenario, a 30-minute delivery delay would put the delivery after opening; the person can inspect the proposed response before applying it, and the opening route stays ready while the optional delivery moves outside the critical path.
 
-The local rule-based simulation schedules sample steps backward from the chosen finish time and records the brief, assumptions, route, and person checkpoint. In the studio example, a short, bounded text conversation can stage a delayed delivery, answer what stays on time, and apply a revised route only when the person asks. It uses fictional examples and makes no network, account, API-key, customer-data, or external model-service calls. A spending cap remains a planning boundary; the prototype does not estimate costs or check live prices.
+The local rule-based simulation schedules sample steps backward from the chosen finish time and records the brief, assumptions, route, and person checkpoint. In the studio example, a short, bounded text conversation can stage a delayed delivery, answer what stays on time, and apply a revised route only when the person asks. Each sample's last applied plan can be restored after reload from this browser; only the applied time, optional cap, group count, and delay choice are stored. Draft edits and conversation text are not stored, and a person can clear the saved plan. It uses fictional examples and makes no network, account, API-key, customer-data, or external model-service calls. A spending cap remains a planning boundary; the prototype does not estimate costs or check live prices.
 
 ## Why it is useful
 
@@ -31,10 +31,11 @@ Planning assistants are most useful when people can see what changed and what st
 4. Ask, **“What stays on time?”** Confirm the answer keeps the 5:30 PM opening in context and estimates the 5:50 PM delivery.
 5. Select **Apply the revised route**. The new local route keeps the room ready and leaves the optional delivery outside the opening path.
 6. Open the handoff stage and decision record, then review the person checkpoint and local-only boundary.
+7. Reload the page, choose the studio sample again, and confirm the applied route returns without the earlier conversation. Clear its saved plan or reset all saved plans.
 
 ## Demo video
 
-A captioned local browser recording is prepared in the workspace's sibling `outputs` directory, outside this repository. It is a local review file only and has not been uploaded to Devpost or another public service. The matching sequence is documented in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
+The updated 23.56-second local Chrome recording is `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`. It shows changing the deadline, applying the revised dinner plan, reviewing its decision record, and restoring the applied plan after reload while the conversation remains unsaved. It has not been uploaded to Devpost or another public service. Before entry, make it publicly available on YouTube or Vimeo and include that video URL. The sequence is documented in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
 
 ## Development disclosure
 

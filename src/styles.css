@@ -175,9 +175,13 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .boundary-icon { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 50%; background: var(--clay); color: var(--paper); font-family: Georgia, serif; font-weight: 800; }
 .boundary-note p { margin: 1px 0 0; color: var(--ink-soft); font-size: 0.81rem; line-height: 1.5; }
 .boundary-note strong { color: var(--ink); }
-.footer { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 19px 0 0; }
-.footer p { max-width: 700px; margin: 0; color: var(--ink-soft); font-size: 0.73rem; line-height: 1.45; }
+.footer { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 19px 0 0; }
+.footer-copy { display: grid; gap: 8px; max-width: 720px; }
+.footer p { margin: 0; color: var(--ink-soft); font-size: 0.73rem; line-height: 1.45; }
+.footer .saved-plan-status { color: var(--ink); }
+.footer-actions { display: grid; justify-items: end; gap: 8px; flex: 0 0 auto; }
 .reset-action { flex: 0 0 auto; }
+.reset-action:disabled { color: var(--ink-soft); cursor: not-allowed; opacity: 0.72; text-decoration: none; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 [hidden] { display: none !important; }
 
@@ -186,7 +190,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .scenario-option:hover, .primary-action:hover { transform: translateY(-2px); background: var(--acid); }
   .scenario-option.is-selected:hover { background: var(--ink); }
   .stage button:hover { background: rgba(19, 35, 44, 0.055); padding-left: 7px; }
-  .text-action:hover, .reset-action:hover, .close-trace:hover { color: var(--clay); }
+  .text-action:hover, .reset-action:not(:disabled):hover, .close-trace:hover { color: var(--clay); }
   .conversation-prompt:hover, .conversation-send:hover { background: var(--paper-deep); border-color: var(--ink); }
 }
 
@@ -222,6 +226,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .timeline li { grid-template-columns: 62px minmax(0, 1fr); gap: 12px; }
   .timeline article { grid-template-columns: 62px minmax(0, 1fr); gap: 12px; }
   .footer { flex-direction: column; }
+  .footer-actions { justify-items: start; }
 }
 
 @media (max-width: 430px) {

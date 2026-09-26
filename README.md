@@ -15,6 +15,7 @@ It is designed for local review and has a static public preview. The three examp
 - schedules the sample route backward from the chosen finish time and keeps the previous route visible until the reviewer applies the edited brief;
 - simulates a late studio delivery and replans only the optional step, keeping the opening time fixed until the person applies the change;
 - carries a short text conversation across a proposed delay, an explanation of what stays fixed, and a direct local apply action;
+- restores the last applied plan for each sample after a reload, storing only its finish time, optional cap, group count, and applied delay in this browser; draft edits and conversation text are not stored, and the saved plan can be cleared;
 - exposes the assumptions and human checkpoint in a decision record;
 - shows a clear local-only status and a final human checkpoint;
 - works without accounts, credentials, API keys, network calls, customer data, or a model provider.
@@ -61,6 +62,7 @@ The implementation uses CSS-only press/hover feedback, preserves keyboard focus,
 3. Ask, **“What stays on time?”** The reply carries the studio opening deadline into the next turn and explains the projected arrival.
 4. Select **Apply the revised route**. The optional delivery moves outside the opening path; no outside action is taken.
 5. Open the stage explanations and decision record. The assumption, changed route, and person checkpoint stay visible.
-6. Review the **Prototype boundary**; no vendor or order is contacted.
+6. Reload the page and choose the studio sample again to see the applied plan restored. The conversation text is absent because it is not saved.
+7. Clear the saved plan for that sample or use **Reset demo & clear saved plans**. Review the **Prototype boundary**; no vendor or order is contacted.
 
 The copyable English submission draft is in [docs/submission-draft.md](docs/submission-draft.md). A local demo script is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Validation notes are in [docs/validation.md](docs/validation.md). The source-control disclosure is in [docs/competition-work-timeline.md](docs/competition-work-timeline.md).

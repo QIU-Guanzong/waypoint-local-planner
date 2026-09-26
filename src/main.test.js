@@ -1,9 +1,23 @@
 /** @vitest-environment jsdom */
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createInitialState, mount, renderWorkspace } from "./main.js";
+
+const localStorageMock = (() => {
+  const values = new Map();
+  return {
+    get length() { return values.size; },
+    getItem(key) { return values.get(key) ?? null; },
+    setItem(key, value) { values.set(String(key), String(value)); },
+    removeItem(key) { values.delete(key); },
+    clear() { values.clear(); }
+  };
+})();
+vi.stubGlobal("localStorage", localStorageMock);
 
 afterEach(() => {
   document.body.innerHTML = "";
+  localStorageMock.clear();
+  vi.restoreAllMocks();
 });
 
 function renderMountedWorkspace() {
@@ -168,11 +182,13 @@ describe("Waypoint local planning simulation", () => {
     expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
     expect(root.querySelector(".timeline").textContent).toContain("5:50 PM, after the 5:30 PM opening");
     expect(root.querySelector(".conversation-log").textContent).toContain("The local route is updated");
+    expect(JSON.parse(localStorageMock.getItem("waypoint.applied-plans.v1")).plans["open-house"].planDisruption).toBe(true);
     root.querySelector('[data-action="conversation-prompt"][data-prompt="Clear the delay"]').click();
     expect(root.querySelector(".timeline").textContent).toContain("Keep the opening path clear");
     expect(root.querySelector(".conversation-log").textContent).toContain("The current route remains in place until you apply");
     root.querySelector('[data-action="conversation-prompt"][data-prompt="Apply the revised route"]').click();
     expect(root.querySelector(".timeline").textContent).toContain("Absorb the late delivery");
+    expect(JSON.parse(localStorageMock.getItem("waypoint.applied-plans.v1")).plans["open-house"].planDisruption).toBe(false);
   });
 
   it("keeps an edited finish time as a draft until the person applies it", () => {
@@ -247,6 +263,89 @@ describe("Waypoint local planning simulation", () => {
     root.querySelector("[data-action='reset']").click();
     expect(root.textContent).toContain("Sample brief ready");
     expect(root.querySelector("#decision-record").hidden).toBe(true);
+    expect(root.querySelector('[data-brief-field="deadline"]').value).toBe("18:30");
+  });
+
+  it("saves an applied plan on this device and restores it without saving conversation text", () => {
+    const root = renderMountedWorkspace();
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    setBriefField(root, "deadline", "18:00");
+    sendConversation(root, "My private note is not part of the plan.");
+    expect(localStorageMock.length).toBe(0);
+    submitBrief(root);
+
+    expect(root.querySelector(".saved-plan-status").textContent).toContain("Draft edits and conversation text are not saved");
+    expect(localStorageMock.getItem("waypoint.applied-plans.v1")).not.toContain("private note");
+    expect(root.querySelector('[data-action="clear-saved-plan"]').disabled).toBe(false);
+
+    root.remove();
+    document.querySelector("#live-announcer")?.remove();
+    const restoredRoot = renderMountedWorkspace();
+    restoredRoot.querySelector('[data-scenario-id="open-house"]').click();
+
+    expect(restoredRoot.querySelector('[data-brief-field="deadline"]').value).toBe("18:00");
+    expect(restoredRoot.querySelector(".timeline").textContent).toContain("5:50 PM");
+    expect(restoredRoot.querySelector(".conversation-log").textContent).toContain("Earlier conversation text was not saved");
+    expect(restoredRoot.querySelector(".conversation-log").textContent).not.toContain("private note");
+  });
+
+  it("clears one saved sample while leaving its current route visible", () => {
+    const root = renderMountedWorkspace();
+    root.querySelector('[data-scenario-id="open-house"]').click();
+    submitBrief(root);
+    expect(localStorageMock.length).toBe(1);
+
+    root.querySelector('[data-action="clear-saved-plan"]').click();
+    expect(localStorageMock.length).toBe(0);
+    expect(root.querySelector(".timeline").textContent).toContain("4:00 PM");
+    expect(root.querySelector(".saved-plan-status").textContent).toContain("current route stays in this tab");
+    expect(root.querySelector('[data-action="clear-saved-plan"]').disabled).toBe(true);
+  });
+
+  it("keeps un-applied edits out of storage and restores the last applied version", () => {
+    const root = renderMountedWorkspace();
+    submitBrief(root);
+    const storedBeforeEdit = localStorageMock.getItem("waypoint.applied-plans.v1");
+
+    setBriefField(root, "deadline", "19:00");
+    sendConversation(root, "Move dinner to 8:00 PM.");
+    expect(localStorageMock.getItem("waypoint.applied-plans.v1")).toBe(storedBeforeEdit);
+
+    root.remove();
+    document.querySelector("#live-announcer")?.remove();
+    const restoredRoot = renderMountedWorkspace();
+    expect(restoredRoot.querySelector('[data-brief-field="deadline"]').value).toBe("18:30");
+    expect(restoredRoot.querySelector(".timeline").textContent).toContain("4:15 PM");
+  });
+
+  it("reports blocked device storage while keeping the local planning flow usable", () => {
+    vi.spyOn(localStorageMock, "setItem").mockImplementation(() => { throw new Error("storage blocked"); });
+    const root = renderMountedWorkspace();
+    submitBrief(root);
+
+    expect(root.textContent).toContain("Plan assembled locally");
+    expect(root.querySelector(".saved-plan-status").textContent).toContain("cannot save plans right now");
+    expect(root.querySelector('[data-action="clear-saved-plan"]').disabled).toBe(true);
+  });
+
+  it("lets the person clear unreadable saved data", () => {
+    localStorageMock.setItem("waypoint.applied-plans.v1", "{broken");
+    const root = renderMountedWorkspace();
+    expect(root.querySelector(".saved-plan-status").textContent).toContain("could not be read");
+
+    root.querySelector('[data-action="clear-saved-plan"]').click();
+    expect(localStorageMock.length).toBe(0);
+    expect(root.querySelector(".saved-plan-status").textContent).toContain("Unreadable saved data cleared");
+  });
+
+  it("clears all saved samples when resetting the demo", () => {
+    const root = renderMountedWorkspace();
+    submitBrief(root);
+    expect(localStorageMock.length).toBe(1);
+
+    root.querySelector('[data-action="reset"]').click();
+    expect(localStorageMock.length).toBe(0);
+    expect(root.querySelector(".saved-plan-status").textContent).toContain("Saved plans cleared from this device");
     expect(root.querySelector('[data-brief-field="deadline"]').value).toBe("18:30");
   });
 });

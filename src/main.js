@@ -1,4 +1,5 @@
 import { DEFAULT_SCENARIO_ID, getScenario, scenarios } from "./scenarios.js";
+import { clearAllAppliedPlans, clearAppliedPlan, loadAppliedPlan, saveAppliedPlan } from "./persistence.js";
 
 function scenarioBrief(scenario) {
   return {
@@ -24,8 +25,54 @@ export function createInitialState(scenarioId = DEFAULT_SCENARIO_ID) {
       role: "waypoint",
       text: "Ask about this sample, suggest one change, or ask why. I only match a small set of local phrases."
     }],
-    notice: "Adjust a sample brief, then build its local plan."
+    notice: "Adjust a sample brief, then build its local plan.",
+    persistenceStatus: "empty"
   };
+}
+
+function restoreState(scenarioId) {
+  const state = createInitialState(scenarioId);
+  const result = loadAppliedPlan(scenarioId);
+  if (result.status !== "restored") return { ...state, persistenceStatus: result.status };
+
+  const { planBrief, planDisruption } = result.plan;
+  return {
+    ...state,
+    planBuilt: true,
+    planBrief,
+    draftBrief: {
+      deadline: planBrief.deadline,
+      budgetCap: planBrief.budgetCap == null ? "" : String(planBrief.budgetCap),
+      groupCount: planBrief.groupCount == null ? "" : String(planBrief.groupCount)
+    },
+    disruptionDraft: planDisruption,
+    planDisruption,
+    conversation: [{
+      role: "waypoint",
+      text: "I restored the last applied plan from this device. Earlier conversation text was not saved."
+    }],
+    notice: "Saved local plan restored. Conversation text is not stored.",
+    persistenceStatus: "restored"
+  };
+}
+
+function persistChangedAppliedPlan(previousState, nextState) {
+  if (!nextState.planBuilt || !nextState.planBrief) return nextState;
+  const changed = !previousState.planBuilt
+    || !sameBrief(previousState.planBrief, nextState.planBrief)
+    || previousState.planDisruption !== nextState.planDisruption;
+  if (!changed) return nextState;
+  return { ...nextState, persistenceStatus: saveAppliedPlan(nextState) };
+}
+
+function persistenceMessage(status) {
+  if (status === "saved" || status === "restored") return "Last applied plan saved on this device. Draft edits and conversation text are not saved.";
+  if (status === "unavailable") return "This browser cannot save plans right now. The current tab still works; reload will reset it.";
+  if (status === "invalid") return "Saved plan data could not be read. Reset the demo to remove it.";
+  if (status === "cleared") return "Saved plan for this sample cleared. The current route stays in this tab.";
+  if (status === "cleared-invalid") return "Unreadable saved data cleared from this device. The current route stays in this tab.";
+  if (status === "cleared-all") return "Saved plans cleared from this device.";
+  return "Only applied plan details are saved on this device. Draft edits and conversation text are not saved.";
 }
 
 function escapeHtml(value) {
@@ -647,7 +694,16 @@ export function renderWorkspace(state) {
         <p><strong>Prototype boundary.</strong> This is a local rule-based simulation with fictional examples. It does not connect to external services, accounts, or customer data. Budget caps are not checked against live prices. It cannot make bookings, purchases, or send messages.</p>
       </section>
 
-      <footer class="footer"><p>A local, reviewable prototype. It acts only inside this page and uses fictional sample data.</p><button type="button" class="reset-action" data-action="reset">Reset local demo</button></footer>
+      <footer class="footer">
+        <div class="footer-copy">
+          <p>A local, reviewable prototype. It acts only inside this page and uses fictional sample data.</p>
+          <p class="saved-plan-status" role="status" aria-live="polite">${escapeHtml(persistenceMessage(state.persistenceStatus))}</p>
+        </div>
+        <div class="footer-actions">
+          <button type="button" class="reset-action" data-action="clear-saved-plan" ${["saved", "restored", "invalid"].includes(state.persistenceStatus) ? "" : "disabled"}>Clear saved plan for this sample</button>
+          <button type="button" class="reset-action" data-action="reset">Reset demo &amp; clear saved plans</button>
+        </div>
+      </footer>
     </main>
   `;
 }
@@ -680,7 +736,7 @@ function updateBriefSummary(root, state) {
 }
 
 export function mount(root) {
-  let state = createInitialState();
+  let state = restoreState(DEFAULT_SCENARIO_ID);
 
   function render() {
     root.innerHTML = renderWorkspace(state);
@@ -697,6 +753,7 @@ export function mount(root) {
     else if (action === "stage") root.querySelector(`[data-action="stage"][data-stage-id="${target}"]`)?.focus({ preventScroll: true });
     else if (action === "trace") root.querySelector(state.traceOpen ? ".close-trace" : ".text-action")?.focus({ preventScroll: true });
     else if (action === "reset") root.querySelector(`[data-action="scenario"][data-scenario-id="${state.scenarioId}"]`)?.focus({ preventScroll: true });
+    else if (action === "clear-saved-plan") root.querySelector('[data-action="clear-saved-plan"]')?.focus({ preventScroll: true });
     else if (action === "conversation-prompt") root.querySelector("#conversation-input")?.focus({ preventScroll: true });
   }
 
@@ -718,7 +775,8 @@ export function mount(root) {
       if (!event.target.reportValidity()) return;
       const message = state.conversationDraft.trim();
       if (!message) return;
-      state = appendConversationTurn(state, message);
+      const previousState = state;
+      state = persistChangedAppliedPlan(previousState, appendConversationTurn(state, message));
       render();
       announceConversationReply();
       root.querySelector("#conversation-input")?.focus({ preventScroll: true });
@@ -731,7 +789,7 @@ export function mount(root) {
     const planBrief = normalizeBrief(state.draftBrief, scenario);
     const deadline = parseClock(planBrief.deadline);
     if (deadline === null || deadline < scenario.scheduleOffsets[0] || (scenario.groupLabel && planBrief.groupCount === null)) return;
-    state = {
+    const appliedState = {
       ...state,
       planBuilt: true,
       planBrief,
@@ -739,6 +797,7 @@ export function mount(root) {
       activeStage: "constraints",
       notice: "Plan assembled from the current local brief. No request left this page."
     };
+    state = { ...appliedState, persistenceStatus: saveAppliedPlan(appliedState) };
     render();
     root.querySelector("#plan-status-title")?.focus({ preventScroll: true });
   });
@@ -750,7 +809,7 @@ export function mount(root) {
     const action = control.dataset.action;
     const target = control.dataset.stageId;
     if (action === "scenario") {
-      state = createInitialState(control.dataset.scenarioId);
+      state = restoreState(control.dataset.scenarioId);
     } else if (action === "stage") {
       state = { ...state, activeStage: target };
     } else if (action === "trace") {
@@ -758,9 +817,15 @@ export function mount(root) {
     } else if (action === "delivery-delay") {
       state = { ...state, disruptionDraft: !state.disruptionDraft };
     } else if (action === "conversation-prompt") {
-      state = appendConversationTurn(state, control.dataset.prompt ?? "");
+      const previousState = state;
+      state = persistChangedAppliedPlan(previousState, appendConversationTurn(state, control.dataset.prompt ?? ""));
+    } else if (action === "clear-saved-plan") {
+      if (control.disabled) return;
+      const result = clearAppliedPlan(state.scenarioId);
+      state = { ...state, persistenceStatus: result === "cleared-invalid" ? "cleared-invalid" : result === "cleared" ? "cleared" : "unavailable" };
     } else if (action === "reset") {
-      state = createInitialState();
+      const result = clearAllAppliedPlans();
+      state = { ...createInitialState(), persistenceStatus: result === "cleared" ? "cleared-all" : "unavailable" };
     } else {
       return;
     }
