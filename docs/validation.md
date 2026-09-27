@@ -49,3 +49,11 @@ This file records local validation and dated external readbacks. It is not proof
 - Chrome review of the public preview exercised the studio sample: build the plan, stage a 30-minute delivery delay, ask what stays on time, and explicitly apply the revised route. The 5:30 PM opening remained fixed, the current route stayed visible until application, and the 5:50 PM delivery remained outside the opening path. The per-sample test plan was cleared after the check.
 - The public source repository's `main` SHA matches local `a1cc0307ede256c6b6f24166217966fe7baa346e`; the public preview loaded the same current flow. This was a targeted desktop path check, not a fresh mobile, keyboard, or reduced-motion run.
 - The existing 23.56-second H.264 video was independently read back in YouTube Studio as **Public**; the public oEmbed endpoint returned its title. It is still a product demo, not a Devpost entry. The signed-in Devpost “My projects” page still says “Register for this hackathon,” so there is no registration, draft, or submission.
+
+## 2026-09-28 local MCP addition
+
+- `pnpm test`: 30 tests passed across three files. The three MCP integration tests connect an official TypeScript SDK client to an ephemeral IPv4 loopback server over Streamable HTTP, list the tools, validate a local route preview, and verify that a late-delivery proposal remains human-reviewed and unapplied.
+- `pnpm build` passed. The advisory motion audit scanned 10 source files with 0 findings. `pnpm audit --prod` found no known production dependency vulnerabilities. `git diff --check` passed.
+- The MCP server binds only to `127.0.0.1`, rejects a public bind address, and applies the SDK's localhost Host and Origin checks. It only reads fictional bundled scenarios; the tools do not save plans or call external services. No fresh browser visual pass was needed because this change adds no UI.
+- `project.json`, the README, and this submission draft explicitly state the project start date as **2026-09-23**, supported by the first repository commit and this dated work timeline.
+- This addition does not change the entry state: Devpost still requires account-holder registration/rules acceptance before an entry can be created. There is no registration or submission.

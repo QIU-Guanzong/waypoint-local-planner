@@ -4,6 +4,10 @@
 
 **Waypoint: a household plan that stays on time when a delivery slips**
 
+## Project start date
+
+**September 23, 2026.** The first repository commit and the dated project work timeline provide supporting evidence; see [`project.json`](../project.json).
+
 ## Short description
 
 Waypoint is a local, static simulation of a household planning assistant. It turns a dinner, studio setup, or weekend-errand brief into a visible route around a fixed finish time, optional spending cap, and group size. In the studio scenario, a 30-minute delivery delay would put the delivery after opening; the person can inspect the proposed response before applying it, and the opening route stays ready while the optional delivery moves outside the critical path.
@@ -16,8 +20,9 @@ Planning assistants are most useful when people can see what changed and what st
 
 ## Technical notes
 
-- Static Vite web application
-- Vanilla JavaScript and CSS; no framework, server, analytics, or external data source
+- Static Vite web application, plus an optional local MCP endpoint for tool-client review
+- Vanilla JavaScript and CSS; no frontend framework, analytics, or external data source
+- Optional Streamable HTTP MCP server built with the official TypeScript SDK; it binds only to `127.0.0.1` and exposes sample listing and read-only route previews. It is not connected to Alexa+, Amazon, or AWS.
 - Responsive layout, keyboard-operable controls, visible focus states, and reduced-motion support
 - One deterministic disruption scenario: a simulated late delivery is deferred so the studio opening remains on time
 - A bounded phrase matcher carries the selected brief across a few text turns; unsupported requests get a clear limitation rather than an invented answer
@@ -45,7 +50,7 @@ OpenAI Codex was used as a coding agent to implement and test this prototype. Th
 
 ## Product feedback (draft)
 
-- **Amazon tools, APIs, and SDKs used:** None at runtime. This entry uses the rules' simulated Alexa+ web-experience path. The prototype was built with Vite, vanilla JavaScript/CSS, and OpenAI Codex as a coding agent.
+- **Amazon tools, APIs, and SDKs used:** None. This entry uses the rules' simulated Alexa+ web-experience path. The prototype was built with Vite, vanilla JavaScript/CSS, and OpenAI Codex as a coding agent. The optional local MCP endpoint uses the official Model Context Protocol TypeScript SDK and is not an Amazon integration.
 - **What worked:** The public rules and participant FAQ clearly describe a simulated experience path, so the project can show a complete local flow without partner-only runtime access.
 - **What needs work:** The participant FAQ says the Alexa+ add-on developer tools are partner-gated and that hackathon participants cannot request access. That leaves no public way to test Alexa+ runtime behavior in this entry.
 - **Onboarding:** We reviewed the rules and FAQ and built the permitted simulation. We did not attempt partner enrollment or test gated tools.

@@ -8,6 +8,8 @@ It is designed for local review and has a static public preview. The three examp
 - a studio open-house setup;
 - a weekend reset with shared errands.
 
+**Project start date:** 2026-09-23. The date is recorded in [`project.json`](project.json) and supported by the first repository commit and the dated work timeline.
+
 ## What this prototype does
 
 - renders an accessible, responsive planning workspace;
@@ -18,7 +20,9 @@ It is designed for local review and has a static public preview. The three examp
 - restores the last applied plan for each sample after a reload, storing only its finish time, optional cap, group count, and applied delay in this browser; draft edits and conversation text are not stored, and the saved plan can be cleared;
 - exposes the assumptions and human checkpoint in a decision record;
 - shows a clear local-only status and a final human checkpoint;
-- works without accounts, credentials, API keys, network calls, customer data, or a model provider.
+- the static web experience works without accounts, credentials, API keys, external network calls, customer data, or a model provider.
+
+An optional local MCP endpoint is available for tool-client review. It uses the official TypeScript SDK over Streamable HTTP, listens only on `127.0.0.1`, and exposes three read-only tools for listing fictional samples and previewing a plan or delivery-delay proposal. It does not save plans or contact outside services. The static web app itself makes no network calls.
 
 The route generator and phrase matcher are deterministic and local. The conversation handles a small, visible set of example intents; it is not a general language model or an Alexa+ connection. The spending cap is carried through the plan as a user boundary; the prototype does not estimate costs or check live prices.
 
@@ -44,6 +48,14 @@ pnpm dev
 ```
 
 Then open the local address printed by Vite. No environment variables are required.
+
+To run the optional local MCP endpoint in a second terminal:
+
+```bash
+pnpm mcp
+```
+
+The endpoint is `http://127.0.0.1:3001/mcp`. It is restricted to IPv4 loopback, uses the SDK's localhost host and origin checks, and cannot be bound to a public interface. The included integration tests connect through the MCP client SDK on an ephemeral loopback port.
 
 ## Verify
 
