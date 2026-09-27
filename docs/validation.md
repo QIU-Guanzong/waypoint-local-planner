@@ -26,19 +26,26 @@ Manual browser review should cover:
 - finish-time boundaries prevent a route from silently crossing into the prior day;
 - a simulated delivery delay reports its projected arrival time, retains the current route until applied, then updates the route and decision record while preserving the opening time.
 
-This file records local validation only. It is not proof of a hackathon entry, account registration, video upload, service integration, award, or payment.
+This file records local validation and dated external readbacks. It is not proof of a hackathon entry, account registration, service integration, award, or payment.
 
 ## 2026-09-24 review
 
 - `pnpm test`: 15 tests passed; `pnpm build` and `git diff --check` passed.
 - The advisory web-motion audit reported no findings.
 - Chrome desktop playback exercised the studio sample, delayed-delivery turn, contextual follow-up, explicit apply, and decision record. No page errors occurred.
-- The latest captioned recording is 35.3 seconds, H.264/MP4 at 1440×900, and remains local. It has no audio track and has not been uploaded.
+- At the time of this check, the latest captioned recording was 35.3 seconds, H.264/MP4 at 1440×900, and remained local. It had no audio track and had not been uploaded.
 - A 390 px mobile review and the JavaScript-disabled static fallback were also checked; neither showed horizontal overflow or lost the static sample.
 
 ## 2026-09-27 plan-resume recording
 
 - `outputs/waypoint-plan-resume-20260927/browser-evidence.json` records a fresh installed-Chrome session at 1600×900 with reduced motion. The session changed the dinner sample's finish time from 18:30 to 19:00, confirmed the prior route stayed visible until applying, opened the decision record, and reloaded the page.
 - After reload, the applied 19:00 plan and route were restored while the conversation was absent. The visible status says draft edits and conversation text are not saved. No page errors or external network origins were observed.
-- The local review video is 23.56 seconds, H.264/MP4, 1600×900; the original WebM capture is retained. Neither is public or uploaded. The recording uses fictional sample data and does not connect to Alexa+, Amazon, AWS, or other services.
+- At the time of this check, the local review video was 23.56 seconds, H.264/MP4, 1600×900; the original WebM capture was retained. Neither was public or uploaded. The recording uses fictional sample data and does not connect to Alexa+, Amazon, AWS, or other services.
 - This is a targeted desktop playback check, not a new mobile, keyboard, or JavaScript-disabled review. Historical checks above remain the last evidence for those paths.
+
+## 2026-09-28 current verification
+
+- `pnpm test`: 27 tests passed; `pnpm build` passed; the advisory web-motion audit scanned 8 source files with 0 findings.
+- Chrome review of the public preview exercised the studio sample: build the plan, stage a 30-minute delivery delay, ask what stays on time, and explicitly apply the revised route. The 5:30 PM opening remained fixed, the current route stayed visible until application, and the 5:50 PM delivery remained outside the opening path. The per-sample test plan was cleared after the check.
+- The public source repository's `main` SHA matches local `a1cc0307ede256c6b6f24166217966fe7baa346e`; the public preview loaded the same current flow. This was a targeted desktop path check, not a fresh mobile, keyboard, or reduced-motion run.
+- The existing 23.56-second H.264 video was independently read back in YouTube Studio as **Public**; the public oEmbed endpoint returned its title. It is still a product demo, not a Devpost entry. The signed-in Devpost “My projects” page still says “Register for this hackathon,” so there is no registration, draft, or submission.

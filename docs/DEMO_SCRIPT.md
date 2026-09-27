@@ -1,6 +1,6 @@
 # Waypoint local demo script
 
-The updated 23.56-second H.264 recording is `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`. The raw browser capture is in the same folder as WebM. Both files are local review artifacts and have not been uploaded.
+The updated 23.56-second H.264 recording is public at https://youtu.be/UmzcbjIHSDU. The source MP4 is `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`; the raw browser capture remains local as WebM. The public video is a product demo, not a hackathon submission.
 
 | Approx. time | On-screen action and caption |
 | --- | --- |
@@ -13,4 +13,4 @@ The updated 23.56-second H.264 recording is `../../../outputs/waypoint-plan-resu
 
 The browser recording uses a fictional sample and deterministic local rules. It does not demonstrate Alexa+, Amazon/AWS integration, live data, or any external service or action. The playback was made in installed Google Chrome at 1600×900 with reduced motion enabled, and the captured session had no page errors or external requests. The detailed readback is in `browser-evidence.json`.
 
-The recording is under the event's three-minute limit, but it is not public. An account holder must review and accept the live rules and eligibility declarations, upload it to a public video service, and complete any entry steps. None of those actions is represented as completed here.
+The recording is under the event's three-minute limit and is public. The account holder still needs to review and accept the live rules and eligibility declarations, register for the hackathon, and complete the entry steps. None of those actions is represented as completed here.

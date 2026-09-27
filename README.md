@@ -24,13 +24,13 @@ The route generator and phrase matcher are deterministic and local. The conversa
 
 ## What it does **not** do
 
-This repository is a simulation only. It has **not** been registered for or submitted to an Amazon Developer Hackathon. No video has been uploaded. It has no Alexa+, Amazon, AWS, store, calendar, maps, reservation, checkout, or real customer-data integration. It cannot make a purchase, contact a service, send a message, or complete any real-world action.
+This repository is a simulation only. It has **not** been registered for or submitted to an Amazon Developer Hackathon. A 23.56-second product-demo video is public at [YouTube](https://youtu.be/UmzcbjIHSDU); the video does not constitute a hackathon entry. The project has no Alexa+, Amazon, AWS, store, calendar, maps, reservation, checkout, or real customer-data integration. It cannot make a purchase, contact a service, send a message, or complete any real-world action.
 
 “Alexa+” appears only to describe the prospective hackathon context. This project is not affiliated with, endorsed by, or connected to Amazon. Before any registration or submission, the account holder must review the live hackathon rules, eligibility, intellectual-property terms, permitted AI use, privacy requirements, and submission format.
 
 ## Live preview
 
-[Open the static Waypoint preview](https://qiu-guanzong.github.io/waypoint-local-planner/). It has been checked without an account or service connection. A public preview is not a hackathon registration, submission, uploaded video, connected Alexa+ implementation, or award.
+[Open the static Waypoint preview](https://qiu-guanzong.github.io/waypoint-local-planner/). It has been checked without an account or service connection. A public preview and demo video are not a hackathon registration, submission, connected Alexa+ implementation, or award.
 
 ## License
 

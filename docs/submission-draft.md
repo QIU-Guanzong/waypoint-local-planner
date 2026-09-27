@@ -35,7 +35,9 @@ Planning assistants are most useful when people can see what changed and what st
 
 ## Demo video
 
-The updated 23.56-second local Chrome recording is at `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`, outside this repository. It shows changing the deadline, applying the revised dinner plan, reviewing its decision record, and restoring the applied plan after reload while the conversation remains unsaved. The file is local only and is not included in this repository or uploaded to Devpost or another public service. Before entry, make it publicly available on YouTube or Vimeo and include that video URL. The sequence is documented in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
+The 23.56-second screen recording is now public on YouTube: https://youtu.be/UmzcbjIHSDU. YouTube Studio currently shows **Public**, and the public oEmbed endpoint returns the video title. The recording is silent, 1600×900 H.264, and shows changing the dinner deadline, applying the revised plan, reviewing its decision record, and restoring the applied plan after reload while the conversation remains unsaved. The source file is `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`, outside this repository. The sequence is documented in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
+
+The video is published, but the project has **not** been registered or submitted to Devpost. The current signed-in Devpost page says “Register for this hackathon”; joining requires the account holder to accept the official rules.
 
 ## Development disclosure
 
