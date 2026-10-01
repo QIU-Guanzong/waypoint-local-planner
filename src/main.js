@@ -517,6 +517,110 @@ function decisionRecord(scenario, brief, disruptionApplied = false) {
   ];
 }
 
+export function previewLocalPlan(options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    return { ok: false, error: "Provide planning options as an object." };
+  }
+
+  const scenarioId = options.scenarioId ?? DEFAULT_SCENARIO_ID;
+  const scenario = scenarios.find((item) => item.id === scenarioId);
+  if (!scenario) return { ok: false, error: "Choose one of the listed sample scenarios." };
+
+  const deadline = options.deadline ?? scenario.deadline;
+  const deadlineMinutes = parseClock(deadline);
+  if (deadlineMinutes === null || deadlineMinutes < scenario.scheduleOffsets[0]) {
+    return {
+      ok: false,
+      error: `Finish time must be a valid 24-hour time no earlier than ${formatTime(minimumDeadline(scenario))}.`
+    };
+  }
+
+  const budgetCap = options.budgetCap === undefined ? scenario.budgetCap : options.budgetCap;
+  if (budgetCap !== null && (typeof budgetCap !== "number" || !Number.isFinite(budgetCap) || budgetCap < 0 || budgetCap > 1_000_000)) {
+    return { ok: false, error: "Budget cap must be a non-negative number up to 1,000,000, or null." };
+  }
+
+  const requestedGroupCount = options.groupCount === undefined ? scenario.groupCount : options.groupCount;
+  if (scenario.groupLabel) {
+    if (!Number.isInteger(requestedGroupCount) || requestedGroupCount < 1 || requestedGroupCount > 20) {
+      return { ok: false, error: "Group count must be a whole number from 1 to 20." };
+    }
+  } else if (requestedGroupCount !== null) {
+    return { ok: false, error: "This sample does not use a group count; pass null or omit it." };
+  }
+
+  const simulateDeliveryDelay = options.simulateDeliveryDelay === true;
+  if (simulateDeliveryDelay && !scenario.disruption) {
+    return { ok: false, error: "A delivery delay is only available in the open-house sample." };
+  }
+
+  const brief = {
+    deadline,
+    budgetCap,
+    groupCount: scenario.groupLabel ? requestedGroupCount : null
+  };
+  const route = getRoute(scenario, brief, simulateDeliveryDelay);
+  const record = decisionRecord(scenario, brief, simulateDeliveryDelay);
+
+  return {
+    ok: true,
+    status: "preview_only",
+    scenario: {
+      id: scenario.id,
+      title: scenario.title,
+      constraints: getConstraintLabels(scenario, brief)
+    },
+    brief: {
+      deadline,
+      deadlineLabel: formatTime(deadline),
+      budgetCap,
+      groupCount: brief.groupCount
+    },
+    route,
+    assumptions: scenario.trace[1][1],
+    decisionRecord: Object.fromEntries(record),
+    humanCheckpoint: record.find(([label]) => label === "Human checkpoint")?.[1] ?? "Review the proposal before any outside action.",
+    limitations: [
+      "This preview uses fictional sample data and deterministic local rules.",
+      "Budget caps are recorded but not used to check prices or affordability.",
+      "No plan is saved and no external service, purchase, reservation, or message is contacted."
+    ]
+  };
+}
+
+export function previewDeliveryDelay(options = {}) {
+  const scenarioId = options?.scenarioId ?? "open-house";
+  const scenario = scenarios.find((item) => item.id === scenarioId);
+  if (!scenario?.disruption) {
+    return { ok: false, error: "Choose the open-house sample to preview its delivery delay." };
+  }
+
+  const baseline = previewLocalPlan({ ...options, scenarioId, simulateDeliveryDelay: false });
+  if (!baseline.ok) return baseline;
+  const proposal = previewLocalPlan({ ...options, scenarioId, simulateDeliveryDelay: true });
+  if (!proposal.ok) return proposal;
+
+  const impact = getDisruptionImpact(scenario, baseline.brief);
+  const changedIndex = scenario.disruption.routeIndex;
+  return {
+    ok: true,
+    status: "requires_human_review",
+    scenario: baseline.scenario,
+    deadline: baseline.brief.deadlineLabel,
+    delayMinutes: scenario.disruption.delayMinutes,
+    projectedArrival: impact.arrivalTime,
+    currentRoute: baseline.route,
+    proposedRoute: proposal.route,
+    changedStep: {
+      index: changedIndex,
+      currentTitle: baseline.route[changedIndex]?.title,
+      proposedTitle: proposal.route[changedIndex]?.title
+    },
+    humanCheckpoint: proposal.humanCheckpoint,
+    note: "This tool proposes a route only. A person must review and apply any change in Waypoint. No outside action is taken."
+  };
+}
+
 function renderDisruptionControl(scenario, state) {
   if (!scenario.disruption) return "";
   const brief = normalizeBrief(state.draftBrief, scenario);
@@ -839,5 +943,7 @@ export function mount(root) {
   render();
 }
 
-const root = document.querySelector("#app");
-if (root) mount(root);
+if (typeof document !== "undefined") {
+  const root = document.querySelector("#app");
+  if (root) mount(root);
+}
