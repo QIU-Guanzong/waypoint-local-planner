@@ -42,6 +42,30 @@ describe("Waypoint MCP over Streamable HTTP", () => {
     expect(proposal.note).toContain("person must review and apply");
   });
 
+  it("negotiates the MCP version required by the Alexa+ track", async () => {
+    server = await startMcpServer({ port: 0 });
+    const initializationVersions = [];
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async (input, init = {}) => {
+      if (typeof init.body === "string") {
+        try {
+          const request = JSON.parse(init.body);
+          if (request.method === "initialize") initializationVersions.push(request.params.protocolVersion);
+        } catch {}
+      }
+      return originalFetch(input, init);
+    };
+
+    try {
+      client = new Client({ name: "waypoint-track-version-test", version: "1.0.0" });
+      await client.connect(new StreamableHTTPClientTransport(new URL(server.url)));
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+
+    expect(initializationVersions).toContain("2025-11-25");
+  });
+
   it("rejects a schedule that crosses the sample's earliest start", async () => {
     server = await startMcpServer({ port: 0 });
     client = new Client({ name: "waypoint-test-client", version: "1.0.0" });

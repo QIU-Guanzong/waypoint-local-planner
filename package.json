@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "mcp": "node src/mcp-server.js",
+    "demo:mcp": "node src/mcp-demo.js",
     "test": "vitest run"
   },
   "devDependencies": {

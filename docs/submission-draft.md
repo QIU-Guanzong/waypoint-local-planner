@@ -4,6 +4,8 @@
 
 **Waypoint: a household plan that stays on time when a delivery slips**
 
+**Public source repository:** https://github.com/QIU-Guanzong/waypoint-local-planner (MIT)
+
 ## Project start date
 
 **September 23, 2026.** The first repository commit and the dated project work timeline provide supporting evidence; see [`project.json`](../project.json).
@@ -23,6 +25,7 @@ Planning assistants are most useful when people can see what changed and what st
 - Static Vite web application, plus an optional local MCP endpoint for tool-client review
 - Vanilla JavaScript and CSS; no frontend framework, analytics, or external data source
 - Optional Streamable HTTP MCP server built with the official TypeScript SDK; it binds only to `127.0.0.1` and exposes sample listing and read-only route previews. It is not connected to Alexa+, Amazon, or AWS.
+- `pnpm demo:mcp` connects an official MCP client over loopback and runs the fictional delivery-delay preview. The integration tests verify protocol `2025-11-25`, the current Alexa+ minimum in the official event rules.
 - Responsive layout, keyboard-operable controls, visible focus states, and reduced-motion support
 - One deterministic disruption scenario: a simulated late delivery is deferred so the studio opening remains on time
 - A bounded phrase matcher carries the selected brief across a few text turns; unsupported requests get a clear limitation rather than an invented answer
@@ -42,7 +45,7 @@ Planning assistants are most useful when people can see what changed and what st
 
 The 23.56-second screen recording is now public on YouTube: https://youtu.be/UmzcbjIHSDU. YouTube Studio currently shows **Public**, and the public oEmbed endpoint returns the video title. The recording is silent, 1600×900 H.264, and shows changing the dinner deadline, applying the revised plan, reviewing its decision record, and restoring the applied plan after reload while the conversation remains unsaved. The source file is `../../../outputs/waypoint-plan-resume-20260927/waypoint-local-plan-resume-20260927.mp4`, outside this repository. The sequence is documented in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
 
-The video is published, but the project has **not** been registered or submitted to Devpost. The current signed-in Devpost page says “Register for this hackathon”; joining requires the account holder to accept the official rules.
+The video is published, but it only demonstrates the web UI; it does not show the MCP client. The project has **not** been registered or submitted to Devpost. The current signed-in Devpost page offers “Join hackathon”; registration requires the account holder to review and accept the official rules.
 
 ## Development disclosure
 
@@ -58,7 +61,7 @@ OpenAI Codex was used as a coding agent to implement and test this prototype. Th
 
 ## Track selection (draft)
 
-- **Primary track:** Alexa+ — simulated web experience.
+- **Primary track:** Alexa+ — self-hosted MCP server over Streamable HTTP, with the web simulation as its user-facing example. The demo video must be refreshed to show the MCP client path.
 - **Mini challenge:** Open Source — a separate public Atuin contribution made during the hackathon window.
 
 ### Open Source mini-challenge fields

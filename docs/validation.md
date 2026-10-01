@@ -57,3 +57,21 @@ This file records local validation and dated external readbacks. It is not proof
 - The MCP server binds only to `127.0.0.1`, rejects a public bind address, and applies the SDK's localhost Host and Origin checks. It only reads fictional bundled scenarios; the tools do not save plans or call external services. No fresh browser visual pass was needed because this change adds no UI.
 - `project.json`, the README, and this submission draft explicitly state the project start date as **2026-09-23**, supported by the first repository commit and this dated work timeline.
 - This addition does not change the entry state: Devpost still requires account-holder registration/rules acceptance before an entry can be created. There is no registration or submission.
+
+## 2026-09-28 local hackathon-demo capture
+
+- Recorded the studio-delay path in installed Google Chrome against the local Vite preview at 1600×900 with reduced motion enabled. The fictional sample starts with a 5:30 PM opening, stages a 30-minute delivery delay and projected 5:50 PM arrival, preserves the current route until explicit application, then shows the applied route and prototype boundary.
+- `../../../../outputs/waypoint-amazon-demo-20260928/recording-evidence.json` records no page errors and no external requests. The captioned, silent H.264/MP4 is 30.04 seconds at 1600×900 and remains local. The raw WebM capture is retained for provenance.
+- The video does not show Alexa+, Amazon, AWS, live data, or external service integration. It has not been uploaded or submitted. The older 23.56-second public dinner-plan video remains unchanged.
+- This targeted capture does not replace mobile, keyboard, static-first, or full accessibility review, and it does not establish hackathon registration or entry acceptance.
+- A read-only check of the official Devpost event page and rules on 2026-09-28 showed the submission window as 2026-08-31 10:15 PT through 2026-10-23 12:00 PT (2026-10-24 03:00 GMT+8). The Alexa+ rules expressly permit a simulated web-app experience using an agentic tool without a required framework or SDK. The signed-in page still offers “Join hackathon”; no registration or submission was made.
+- The project `started_at` date, 2026-09-23, is within that published window and remains supported by its first repository commit and the dated timeline. This date check does not make the entrant's eligibility or eventual award status automatic.
+- The official Alexa+ prizes list USD 25,000, USD 15,000, and USD 4,000 cash awards, separately from AWS credits. Prize awards are not income. The rules require post-award identity/role verification and other forms, and may require a W-8BEN for non-US winners; a Hong Kong payout method has not been verified.
+
+## 2026-10-02 MCP protocol acceptance
+
+- The 2026-09-16 official rules update sets `2025-11-25` as the minimum Alexa+ MCP version and requires a public source repository plus a public YouTube or Vimeo demo under three minutes. The authenticated event page in Chrome shows `QIU-Guanzong`, “Join hackathon,” 30,108 participants, and a 2026-10-24 03:00 GMT+8 deadline. No rules acceptance, registration, or entry was made.
+- `pnpm install --frozen-lockfile --ignore-scripts` found the lockfile current and reused 105 cached packages (0 downloaded). `pnpm test` passed 31 tests across 3 files; `pnpm build` passed; `git diff --check` passed.
+- `pnpm demo:mcp` started an ephemeral 127.0.0.1 server, connected an official MCP client through Streamable HTTP, printed protocol `2025-11-25`, listed three read-only tools, and returned the fictional open-house proposal as `requires_human_review`. It made no outside request and applied no action.
+- The regression test captures the actual initialization request and checks the minimum protocol version. The project remains a local self-hosted MCP service plus a static simulation; it is not an Amazon/Alexa+ integration.
+- The public YouTube video is still web-UI-only. No new recording or upload was created. A separate public MCP demonstration video and account-holder registration/rules review remain necessary before entry.

@@ -57,6 +57,14 @@ pnpm mcp
 
 The endpoint is `http://127.0.0.1:3001/mcp`. It is restricted to IPv4 loopback, uses the SDK's localhost host and origin checks, and cannot be bound to a public interface. The included integration tests connect through the MCP client SDK on an ephemeral loopback port.
 
+To see a real client connect over Streamable HTTP, list the available tools, and request the fictional late-delivery preview:
+
+```bash
+pnpm demo:mcp
+```
+
+The demo starts the server on a temporary loopback port and shuts it down when finished. It uses only bundled sample data; the proposal remains unapplied.
+
 ## Verify
 
 ```bash

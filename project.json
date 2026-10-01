@@ -2,9 +2,36 @@
   "project": "Waypoint — Alexa+ local planning simulation",
   "started_at": "2026-09-23",
   "started_at_evidence": "Earliest repository commit 1c1f8d81e682106c085fee30f09b208a529b3def, recorded at 2026-09-23T10:46:13+08:00; docs/competition-work-timeline.md records the same date.",
-  "last_worked_at": "2026-09-28T07:01:56+08:00",
-  "status": "LOCAL_DEMO_AND_MCP_VERIFIED; HACKATHON_ENTRY_NOT_REGISTERED",
+  "last_worked_at": "2026-10-02T04:27:36+08:00",
+  "status": "MCP_PROTOCOL_2025_11_25_VERIFIED; LOCAL_DEMO_READY; HACKATHON_ENTRY_NOT_REGISTERED; MCP_VIDEO_REQUIRED",
   "source": "https://amazonappdev2026.devpost.com/",
-  "latest_validation": "2026-09-28: 30 tests passed, including three MCP Streamable HTTP integration tests over loopback; production build passed; advisory motion audit reported 0 findings; production dependency audit found no known vulnerabilities.",
-  "next_gate": "Devpost currently asks the account holder to register for this hackathon; registration and submission are not complete. Official rules require personal acceptance at entry."
+  "latest_validation": "2026-10-02: 31 tests passed across 3 files; production build passed; pnpm demo:mcp connected over loopback Streamable HTTP and exercised three read-only tools with fictional data; actual initialization requested MCP 2025-11-25; git diff --check passed.",
+  "latest_local_demo_evidence": {
+    "recorded_at": "2026-09-28",
+    "video": "../../../outputs/waypoint-amazon-demo-20260928/waypoint-alexa-simulation-demo-20260928.mp4",
+    "evidence": "../../../outputs/waypoint-amazon-demo-20260928/recording-evidence.json",
+    "raw_capture": "../../../outputs/waypoint-amazon-demo-20260928/raw/9efb57ef081551466afa276c7f6b81ab.webm",
+    "format": "30.04 seconds; H.264 MP4; 1600x900; 25 fps; English on-screen captions; silent.",
+    "scope": "Local Vite preview in installed Chrome with reduced motion enabled. The fictional studio sample stages a 30-minute delivery delay, keeps the route unchanged until explicit application, then shows the updated route and prototype boundary. No Alexa+, Amazon, AWS, live data, or external service connection is shown.",
+    "result": "Existing 23.56-second public YouTube video shows web UI only. New local pnpm demo:mcp walks an MCP client over loopback but is not a video. A public under-three-minute MCP walkthrough remains required for this primary track."
+  },
+  "latest_external_readback": {
+    "checked_at_local_approx": "2026-10-02 04:10-04:21 Asia/Shanghai",
+    "official_event_page": "https://amazonappdev2026.devpost.com/",
+    "official_rules": "https://amazonappdev2026.devpost.com/rules",
+    "submission_period": "2026-08-31 10:15 Pacific Time through 2026-10-23 12:00 Pacific Time; Devpost page displays 2026-10-24 03:00 GMT+8.",
+    "rules_update": "2026-09-16 update requires the Alexa+ MCP track to implement minimum protocol 2025-11-25; an alternative simulated web experience is allowed. Public source repository required; public YouTube/Vimeo demo under 3 minutes required.",
+    "event_page_state": "Signed-in Chrome identifies QIU-Guanzong and still offers Join hackathon; no registration, rules acceptance, draft entry, or submission. Page showed 30,108 participants.",
+    "track_fit": "Existing local server negotiates 2025-11-25 over Streamable HTTP and exposes three read-only fictional-planning tools. Local browser simulation is separate from the MCP server and is not an Amazon/Alexa+ integration.",
+    "cash_awards": "Alexa+ lists USD 25,000 / 15,000 / 4,000 cash awards plus separate AWS credits. Competitive awards only; no income.",
+    "payout_boundary": "Official rules require identity/role verification and winner forms; non-US winners may need W-8BEN and bear fees/tax/foreign-exchange responsibilities. Hong Kong-specific payout route not verified."
+  },
+  "next_gate": "The account holder must personally review current rules/eligibility and join the event. Prepare a fresh public under-three-minute video showing pnpm demo:mcp; then complete the project form with the existing public repo, current video, OpenAI Codex development disclosure, and Atuin PR #4200 mini-challenge details. Do not claim registration, submission, or income until independently read back.",
+  "latest_mcp_demo_evidence": {
+    "recorded_at": "2026-10-02",
+    "command": "pnpm demo:mcp",
+    "protocol": "2025-11-25 over Streamable HTTP",
+    "scope": "Ephemeral 127.0.0.1 server and official TypeScript MCP client; lists three read-only tools and requests fictional late-delivery preview.",
+    "result": "Proposal status requires_human_review; no changes applied; server and client closed; no external service, credentials, model provider, or customer data."
+  }
 }
